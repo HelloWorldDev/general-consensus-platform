@@ -245,18 +245,14 @@ class DEXONNode extends Node {
                 }
                 // check: update lock value and go to next round
                 for (let round = this.precommits.length - 1; round >= msg.round; round--) {
-                    if (round > this.lock.round) {
-                        if (this.updateLock(round)) {
-                            return;
-                        }
+                    if (round > this.lock.round && this.updateLock(round)) {
+                        return;
                     }
                 }
                 // check: go to next round and keep up round number
                 for (let round = this.commits.length - 1; round >= msg.round; round--) {
-                    if (round >= this.round) {
-                        if (this.forwardNextRound(round)) {
-                            return;
-                        }
+                    if (round >= this.round && this.forwardNextRound(round)) {
+                        return;
                     }
                 }  
                 break;
