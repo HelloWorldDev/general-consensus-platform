@@ -17,7 +17,7 @@ A platform for testing / verifying / benchmarking general consensus algorithms.
 - TCP
 - IPC
 
-### Installation
+### Install
 ```
 npm install
 ```
