@@ -1,8 +1,8 @@
 'use strict';
 // implement network by IPC
-const config = require('./config');
+const config = require('../config');
 const Attacker = (config.attacker) ?
-    require('./attacker/' + config.attacker) : undefined;
+    require('../attacker/' + config.attacker) : undefined;
 
 class Network {
 

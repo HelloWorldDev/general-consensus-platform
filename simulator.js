@@ -1,12 +1,11 @@
 'use strict';
 
-const { fork } = require('child_process');
+const { fork, spawn } = require('child_process');
 const path = require('path');
 const Logger = require('./lib/logger');
 const Dashboard = require('./lib/dashboard');
 const config = require('./config');
-const Network = (config.networkType === 'ipc') ? 
-    require('./network-ipc') : require('./network-tcp');
+const Network = require('./network/network-' + config.networkType);
 const NetworkInterface = require('./lib/network-interface');
 
 process.on('uncaughtException', (err) => {
@@ -57,16 +56,21 @@ function startSimulation() {
     simCount++;
     infos.system[0] = `Start simulation #${simCount}`;
     // fork nodes
-    childKillSent = false;    
-    const nodeProgram = path.resolve(`./ba-algo/${config.BAType}.js`);
-    for (let nodeID = 1; nodeID <= correctNodeNum; nodeID++) {
-        setTimeout(() => {
-            let node = fork(nodeProgram, ['' + nodeID, nodeNum]);
-            nodes[nodeID] = node;
-            if (nodeID === correctNodeNum) {
-                network.addNodes(nodes);
-            }
-        }, nodeID * config.startDelay * 1000);
+    childKillSent = false;
+    if (config.useExternalBA) {
+        // modify this to run external BA algorithms
+    }
+    else {
+        const nodeProgram = path.resolve(`./ba-algo/${config.BAType}.js`);
+        for (let nodeID = 1; nodeID <= correctNodeNum; nodeID++) {
+            setTimeout(() => {
+                let node = fork(nodeProgram, ['' + nodeID, nodeNum]);
+                nodes[nodeID] = node;
+                if (nodeID === correctNodeNum) {
+                    network.addNodes(nodes);
+                }
+            }, nodeID * config.startDelay * 1000);
+        }
     }
 }
 let simCount = 0;

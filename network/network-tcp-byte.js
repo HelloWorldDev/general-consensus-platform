@@ -1,10 +1,9 @@
 'use strict';
-// implement tcp socket that pass JSON object
-const JSONSocket = require('./lib/json-socket');
+// implement tcp socket that pass raw byte
 const net = require('net');
-const config = require('./config');
+const config = require('../config');
 const Attacker = (config.attacker) ?
-    require('./attacker/' + config.attacker) : undefined;
+    require('../attacker/' + config.attacker) : undefined;
 
 class NetworkTCP {
 
@@ -57,7 +56,7 @@ class NetworkTCP {
 
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
-        this.sockets = {};     
+        this.sockets = [];     
         this.queue = [];
         const server = net.createServer();
         if (Attacker !== undefined) {
@@ -67,9 +66,40 @@ class NetworkTCP {
                 }
             });
         }
+        const isConnecting = [false, false, false, false];
+        const isConnected = [false, false, false, false];
+        const clients = [];
         server.on('connection', (socket) => {
-            socket = new JSONSocket(socket);
-            socket.on('message', (packet) => {
+            for (let i = 0; i < 4; i++) {
+                if (isConnecting[i]) {
+                    continue;
+                }
+                // open a connection to node
+                const port = 30000 + i;
+                isConnecting[i] = true;                 
+                clients[i] = net.createConnection(
+                    { host: '127.0.0.1', port: port }, 
+                    () => {
+                        console.log('connected to node', i);
+                        isConnected[i] = true;
+                    }
+                );
+            }
+            console.log(socket.remoteAddress, socket.remotePort);
+            const ip = socket.remoteAddress;
+            const port = socket.remotePort;
+            socket.on('data', (packet) => {
+
+                console.log(`${packet}`);
+                // broadcast
+                for (let i = 0; i < 4; i++) {
+                    if (isConnected[i]) {
+                        clients[i].write(packet);
+                    }
+                }
+
+                //socket.write(packet);
+                /*
                 // network redistration
                 if (packet.dst === 'network') {
                     this.sockets[packet.src] = socket;
@@ -88,8 +118,9 @@ class NetworkTCP {
                 }
                 else {
                     this.queue.push(packet);
-                }
+                }*/
             });
+            
         });
         server.on('listening', () => {
             onCreated();        
