@@ -31,14 +31,15 @@ class Network {
             packet.src !== 'system' && packet.dst !== 'system' &&
             packet.src !== 'attacker' && packet.dst !== 'attacker') {
             packets = this.attacker.attack(packets);
+            // filter unavailable dst packets
+            packets = packets
+                .filter(packet => this.availableDst.has(packet.dst));
         }
         // send packets
         packets.forEach((packet) => {
-            if (this.availableDst.has(packet.dst)) {
-                setTimeout(() => {
-                    this.nodes[packet.dst].send(packet.content);
-                }, packet.delay * 1000);
-            }
+            setTimeout(() => {
+                this.nodes[packet.dst].send(packet.content);
+            }, packet.delay * 1000);
         });
     }
 
