@@ -160,28 +160,17 @@ class VMwareNode extends Node {
     }
 
     reportToSystem() {
-        /*
-        const precommitsS = (this.precommits[this.round]) ? 
-            '' + this.precommits[this.round].length : '0';
-        const commitsS = (this.commits[this.round]) ? 
-            '' + this.commits[this.round].length : '0';
-        const decidedValueS = (this.decidedValue) ?
-            this.decidedValue : 'NA';
-        const isDecidedS = this.isDecided.toString();
-        const lock = `(${this.lock.round}, ${this.lock.value})`;
+        const acceptedS = `(${this.accepted.vi}, ${this.accepted.ki})`;
         const info = {
-            initValue: { s: this.initValue, w: 15 },
-            round: { s: '' + this.round, w: 15 },
-            precommits: { s: precommitsS, w: 15 },
-            commits: { s: commitsS, w: 15 },
-            isDecided: { s: isDecidedS, w: 15 },            
-            decidedValue: { s: decidedValueS, w: 15 },
-            'lock(r, v)': { s: lock, w: 15 }
+            round: { s: '' + this.k, w: 15 },
+            leader: { s: this.leader, w: 15 },
+            accepted: { s: acceptedS, w: 70 },
+            isDecided: { s: 'false', w: 15 }
         };
         this.send(this.nodeID, 'system', {
             sender: this.nodeID,
             info: info
-        });*/
+        });
     }
 
     constructor(nodeID, nodeNum) {
@@ -198,7 +187,7 @@ class VMwareNode extends Node {
             ki: 0,
             Ci: 'undefined'
         };
-        this.k = 12;
+        this.k = 1;
         this.vLi = 'undefined';
         this.leader = '' + (this.k % this.nodeNum + 1);
         this.status = [];

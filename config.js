@@ -1,18 +1,18 @@
 module.exports = {
 	// node
 	nodeNum: 16,
-	byzantineNodeNum: 4,
+	byzantineNodeNum: 5,
 	// ba
-	useExternalBA: true,
+	useExternalBA: false,
 	// ba specific param
 	lambda: 1,
-	BAType: 'dexon-ba',
+	BAType: 'vmware-ba/v1',
 	configPath: '/Users/nicky/general-consensus-platform/tendermint/mytestnet/node',
 	// network env
-	networkType: 'tcp-byte',
+	networkType: 'tcp-json',
 	host: 'localhost',
 	port: 36251,
-	networkDelay: 1,
+	networkDelay: 0.25,
 	startDelay: 0,
 	// simulator
 	showDashboard: false,
