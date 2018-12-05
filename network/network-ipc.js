@@ -34,9 +34,11 @@ class Network {
         }
         // send packets
         packets.forEach((packet) => {
-            setTimeout(() => {
-                this.nodes[packet.dst].send(packet.content);
-            }, packet.delay * 1000);
+            if (this.availableDst.has(packet.dst)) {
+                setTimeout(() => {
+                    this.nodes[packet.dst].send(packet.content);
+                }, packet.delay * 1000);
+            }
         });
     }
 
@@ -50,11 +52,13 @@ class Network {
             this.nodes[nodeID].on('message', (packet) => {
                 this.transfer(packet);     
             });
+            this.availableDst.push(nodeID);
         }
     }
 
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
+        this.availableDst = [];
         if (Attacker !== undefined) {
             this.attacker = new Attacker(this);
         }

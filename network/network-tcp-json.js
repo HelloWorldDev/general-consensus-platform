@@ -10,11 +10,11 @@ class NetworkTCP {
 
     transfer(packet) {
         if (packet.dst === 'system') {
-            //this.sockets['system'].sendMessage(packet.content);
             this.sendToSystem(packet.content);
             return;
         }
         if (packet.dst !== 'broadcast' && 
+            this.availableDst.has(packet.dst) &&
             this.sockets[packet.dst] === undefined) {
             this.queue.push(packet);
             return;
@@ -42,9 +42,11 @@ class NetworkTCP {
         }
         // send packets
         packets.forEach((packet) => {
-            setTimeout(() => {
-                this.sockets[packet.dst].sendMessage(packet.content);
-            }, packet.delay * 1000);
+            if (this.availableDst.has(packet.dst)) {
+                setTimeout(() => {
+                    this.sockets[packet.dst].sendMessage(packet.content);
+                }, packet.delay * 1000);
+            }
         });
     }
 
@@ -52,13 +54,16 @@ class NetworkTCP {
         this.sockets = {};
     }
     addNodes(nodes) {
-
+        for (let nodeID in nodes) {
+            this.availableDst.push(nodeID);
+        }
     }
 
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
         this.sockets = {};     
         this.queue = [];
+        this.availableDst = [];
         const server = net.createServer();
         if (Attacker !== undefined) {
             this.attacker = new Attacker({
