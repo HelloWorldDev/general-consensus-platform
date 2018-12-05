@@ -37,7 +37,9 @@ class VMwareNode extends Node {
                 this.accepted.ki = 0;
                 this.accepted.Ci = 'undefined';
                 if (this.status.length > 0) {
-                    const msg = this.status.groupBy(msg => msg.ki)[0][1][0];
+                    const msg = this.status
+                        .groupBy(msg => msg.ki)
+                        .maxBy(arr => parseInt(arr[0]))[1][0];
                     if (msg.Ci !== 'undefined') {
                         this.accepted.vi = msg.vi;
                         this.accepted.ki = msg.ki;
