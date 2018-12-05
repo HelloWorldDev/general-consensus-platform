@@ -1,6 +1,7 @@
 'use strict';
 
 const Node = require('./node');
+const config = require('../config');
 
 class DEXONNode extends Node {
 
@@ -307,7 +308,7 @@ class DEXONNode extends Node {
             round: 0
         };
         this.step = 1;
-        this.lambda = 1;
+        this.lambda = config.lambda;
         // start BA process
         // propose init value
         this.initValue = '' + Math.floor(Math.random() * 100 + 1);
