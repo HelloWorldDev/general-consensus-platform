@@ -137,8 +137,8 @@ class VMwareNode extends Node {
         case 'fl-propose':
             if (msg.sender === this.leader) {
                 if (msg.kL >= this.accepted.ki) {
-                    this.vLi = msg.proposeMsg.vL;
                     this.proposeMsg = msg.proposeMsg;
+                    this.vLi = this.proposeMsg.vL;
                 }
                 else {
                     // leader is faulty
