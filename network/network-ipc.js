@@ -51,7 +51,7 @@ class Network {
         this.nodes = nodes;
         for (let nodeID in this.nodes) {
             this.nodes[nodeID].on('message', (packet) => {
-                this.transfer(packet);     
+                this.transfer(packet);
             });
             this.availableDst.push(nodeID);
         }

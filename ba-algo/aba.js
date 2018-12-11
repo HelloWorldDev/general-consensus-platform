@@ -91,9 +91,9 @@ class ABANode extends Node {
             return;
         }
         while (this.valids[k].length >= 2 * this.f + 1) {
-            let maxV = getMaxMsgV(this.valids[k]);            
+            let maxV = getMaxMsgV(this.valids[k]);
             switch (this.round) {
-                case 1: 
+                case 1:
                     this.valueP = maxV.value;
                     this.round++;
                     this.broadcast2pc({
@@ -135,7 +135,7 @@ class ABANode extends Node {
                         this.valueP = Math.round(Math.random());
                     }
                     this.round = 1;
-                    this.phase++; 
+                    this.phase++;
                     this.broadcast2pc({
                         k: 3 * this.phase + this.round,
                         sender: this.nodeID,
@@ -144,13 +144,13 @@ class ABANode extends Node {
                     });
                     break;
                 default:
-                    this.logger.warning(['Undefined round.']);                       
+                    this.logger.warning(['Undefined round.']);
             }
-            k = 3 * this.phase + this.round; 
+            k = 3 * this.phase + this.round;
             if (this.valids[k] === undefined) {
                 this.valids[k] = [];
                 break;
-            }              
+            }
         }
         this.reportToSystem();
     }
@@ -187,7 +187,7 @@ class ABANode extends Node {
                     this.vBox[v.ID].echo.push(echoMsg);
                     this.send(this.nodeID, 'broadcast', echoMsg);
                 }
-                break;      
+                break;
             case 2:
                 const readyMsg = {
                     type: 'ready',
@@ -203,7 +203,7 @@ class ABANode extends Node {
                 break;
             case 3:
                 if (this.vBox[v.ID].ready.length >= this.f + 1 &&
-                    !this.vBox[v.ID].accept) {                        
+                    !this.vBox[v.ID].accept) {
                     this.vBox[v.ID].accept = true;
                     this.receive2pc(v);
                 }
@@ -220,9 +220,9 @@ class ABANode extends Node {
         let valuePS
         if (this.valueP === undefined) {
             valuePS = 'undefined';
-        } 
+        }
         else {
-            valuePS = (this.valueP.d) ? 
+            valuePS = (this.valueP.d) ?
                 `(${this.valueP.v}, d)` : `${this.valueP}`;
         }
 
@@ -242,7 +242,7 @@ class ABANode extends Node {
 
     constructor(nodeID, nodeNum) {
         super(nodeID, nodeNum);
-        this.f = (this.nodeNum % 3 === 0) ? 
+        this.f = (this.nodeNum % 3 === 0) ?
             this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);
         // 2 phase commit
         // v.ID => { initCount, readyCount, echoCount, v }

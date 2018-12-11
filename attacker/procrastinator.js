@@ -24,9 +24,9 @@ class Procrastinator extends Attacker {
 
     reportNodeToSystem(nodeID) {
         const node = this.nodes[nodeID];
-        const precommitsS = (node.precommits[node.round]) ? 
+        const precommitsS = (node.precommits[node.round]) ?
             '' + node.precommits[node.round].length : '0';
-        const commitsS = (node.commits[node.round]) ? 
+        const commitsS = (node.commits[node.round]) ?
             '' + node.commits[node.round].length : '0';
         const decidedValueS = (node.decidedValue) ?
             node.decidedValue : 'NA';
@@ -37,7 +37,7 @@ class Procrastinator extends Attacker {
             round: { s: '' + node.round, w: 15 },
             precommits: { s: precommitsS, w: 15 },
             commits: { s: commitsS, w: 15 },
-            isDecided: {s: isDecidedS, w: 15},            
+            isDecided: {s: isDecidedS, w: 15},
             decidedValue: { s: decidedValueS, w: 15 },
             'lock(r, v)': { s: lock, w: 15 }
         };
@@ -49,13 +49,13 @@ class Procrastinator extends Attacker {
 
     attack(packets) {
         for (let packet of packets) {
-            if (!this.start && packet.src === '1' && 
+            if (!this.start && packet.src === '1' &&
                 packet.content.type === 'init') {
                 //console.log(packet);
                 // count lambda and send smaller value to 1
                 setTimeout(() => {
                     // 1l
-                    this.info[0] = 
+                    this.info[0] =
                         `Attacker ${this.msgToVictim.sender} send ${this.msgToVictim.value} to node 1.`;
                     this.sendMsgToVictim();
                     setTimeout(() => {
@@ -73,19 +73,19 @@ class Procrastinator extends Attacker {
                         }, 2 * config.lambda * 1000);
                     }, 3 * config.lambda * 1000);
                 }, config.lambda * 1000);
-                // count 3 lambda and send value to other nodes                
+                // count 3 lambda and send value to other nodes
                 setTimeout(() => {
                     // 3l
                     this.info[0] =
-                        `Attacker ${this.msgToOthers.sender} send ${this.msgToOthers.value} to others.`; 
+                        `Attacker ${this.msgToOthers.sender} send ${this.msgToOthers.value} to others.`;
                     this.sendMsgToOthers();
                     setInterval(() => {
                         // 5l, 7l...
                         if (this.msgToOthers.value >= -5) {
                             this.info[0] =
                                 `Attacker ${this.msgToOthers.sender} send ${this.msgToOthers.value} to others.`;
-                            this.sendMsgToOthers(); 
-                        }   
+                            this.sendMsgToOthers();
+                        }
                     }, 2 * config.lambda * 1000);
                 }, 3 * config.lambda * 1000);
                 this.start = true;

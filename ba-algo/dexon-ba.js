@@ -90,13 +90,13 @@ class DEXONNode extends Node {
     runBALogic() {
         // extend precommits and commits to current round
         if (this.round > this.precommits.length - 1) {
-            this.extendVectors(this.precommits, 
+            this.extendVectors(this.precommits,
                 this.round - this.precommits.length + 1,
                 'precommit'
             );
         }
         if (this.round > this.commits.length - 1) {
-            this.extendVectors(this.commits, 
+            this.extendVectors(this.commits,
                 this.round - this.commits.length + 1,
                 'commit'
             );
@@ -174,7 +174,7 @@ class DEXONNode extends Node {
                 break;
             case 'precommit':
                 if (msg.round > this.precommits.length - 1) {
-                    this.extendVectors(this.precommits, 
+                    this.extendVectors(this.precommits,
                         msg.round - this.precommits.length + 1,
                         'precommit'
                     );
@@ -190,7 +190,7 @@ class DEXONNode extends Node {
             case 'commit':
                 // push message to commits according to round number
                 if (msg.round > this.commits.length - 1) {
-                    this.extendVectors(this.commits, 
+                    this.extendVectors(this.commits,
                         msg.round - this.commits.length + 1,
                         'commit'
                     );
@@ -206,9 +206,9 @@ class DEXONNode extends Node {
                 if (this.forwardNextRound(msg.round)) {
                     return;
                 }
-                break; 
+                break;
             case 'decide':
-                // save message to decides  
+                // save message to decides
                 this.decides[msg.sender] = msg;
                 // add precommits according to decide msg
                 for (let r = msg.round; r < this.precommits.length; r++) {
@@ -255,18 +255,18 @@ class DEXONNode extends Node {
                     if (round >= this.round && this.forwardNextRound(round)) {
                         return;
                     }
-                }  
+                }
                 break;
-            default: 
+            default:
                 console.log('Unknown message type.');
         }
         this.reportToSystem();
     }
 
     reportToSystem() {
-        const precommitsS = (this.precommits[this.round]) ? 
+        const precommitsS = (this.precommits[this.round]) ?
             '' + this.precommits[this.round].length : '0';
-        const commitsS = (this.commits[this.round]) ? 
+        const commitsS = (this.commits[this.round]) ?
             '' + this.commits[this.round].length : '0';
         const decidedValueS = (this.decidedValue) ?
             this.decidedValue : 'NA';
@@ -277,7 +277,7 @@ class DEXONNode extends Node {
             round: { s: '' + this.round, w: 15 },
             precommits: { s: precommitsS, w: 15 },
             commits: { s: commitsS, w: 15 },
-            isDecided: { s: isDecidedS, w: 15 },            
+            isDecided: { s: isDecidedS, w: 15 },
             decidedValue: { s: decidedValueS, w: 15 },
             'lock(r, v)': { s: lock, w: 15 }
         };
@@ -290,7 +290,7 @@ class DEXONNode extends Node {
     constructor(nodeID, nodeNum) {
         super(nodeID, nodeNum);
         //this.isCooling = false;
-        this.f = (this.nodeNum % 3 === 0) ? 
+        this.f = (this.nodeNum % 3 === 0) ?
             this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);
         
         // BA related
