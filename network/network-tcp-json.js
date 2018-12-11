@@ -13,7 +13,7 @@ class NetworkTCP {
             this.sendToSystem(packet.content);
             return;
         }
-        if (packet.dst !== 'broadcast' && 
+        if (packet.dst !== 'broadcast' &&
             this.availableDst.has(packet.dst) &&
             this.sockets[packet.dst] === undefined) {
             this.queue.push(packet);
@@ -35,7 +35,7 @@ class NetworkTCP {
             packets.push(packet);
         }
         // attacker attack function
-        if (Attacker !== undefined && 
+        if (Attacker !== undefined &&
             packet.src !== 'system' && packet.dst !== 'system' &&
             packet.src !== 'attacker' && packet.dst !== 'attacker') {
             packets = this.attacker.attack(packets);
@@ -62,7 +62,7 @@ class NetworkTCP {
 
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
-        this.sockets = {};     
+        this.sockets = {};
         this.queue = [];
         this.availableDst = [];
         const server = net.createServer();
@@ -82,7 +82,7 @@ class NetworkTCP {
                     return;
                 }
                 // every node is connected
-                if (Object.keys(this.sockets).length === 
+                if (Object.keys(this.sockets).length ===
                     config.nodeNum - config.byzantineNodeNum) {
                     if (this.queue.length !== 0) {
                         for (let packet of this.queue) {
@@ -98,9 +98,9 @@ class NetworkTCP {
             });
         });
         server.on('listening', () => {
-            onCreated();        
+            onCreated();
         });
-        server.listen(config.port, config.host);        
+        server.listen(config.port, config.host);
     }
 }
 

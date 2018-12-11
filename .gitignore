@@ -1,4 +1,10 @@
-log
-node_modules
 dexon-fast-ba.js
 splitter.js
+
+# directories
+log/
+node_modules/
+
+# vim temp file
+*.swp
+

@@ -46,7 +46,7 @@ class PBFTNode extends Node {
         return false;
     }
     isStableCheckpoint(n) {
-        if (this.checkpoint[n] === undefined || 
+        if (this.checkpoint[n] === undefined ||
             this.checkpoint[n].length === 0) {
             return false;
         }
@@ -58,8 +58,8 @@ class PBFTNode extends Node {
 
     receive(msg) {
         this.logger.info(['recv', JSON.stringify(msg)]);
-        if (this.isInViewChange && 
-            (msg.type !== 'checkpoint' && 
+        if (this.isInViewChange &&
+            (msg.type !== 'checkpoint' &&
             msg.type !== 'view-change' &&
             msg.type !== 'new-view')) {
             return;
@@ -157,7 +157,7 @@ class PBFTNode extends Node {
                 clearTimeout(this.digest[msg.d].timer);
                 this.digest[msg.d].isDecided = true;
                 this.lastDecidedSeq = msg.n;
-                this.lastDecidedRequest = msg.d;             
+                this.lastDecidedRequest = msg.d;
                 this.logger.info(['decide', msg.d]);
                 if (msg.n % this.checkpointPeriod === 0) {
                     const checkpointMsg = {
@@ -176,7 +176,7 @@ class PBFTNode extends Node {
             this.extendVector(this.checkpoint, msg.n);
             this.checkpoint[msg.n].push(msg);
             // earliest checkpoint that is not stable
-            let usCheckpoint = 
+            let usCheckpoint =
                 this.lastStableCheckpoint + this.checkpointPeriod;
             if (msg.n === usCheckpoint) {
                 while (this.isStableCheckpoint(usCheckpoint)) {
@@ -194,7 +194,7 @@ class PBFTNode extends Node {
             if (this.isPrimary) {
                 return;
             }
-            if (this.viewChange[msg.v].length >= 2 * this.f + 1 && 
+            if (this.viewChange[msg.v].length >= 2 * this.f + 1 &&
                 (msg.v % this.nodeNum) === (parseInt(this.nodeID) - 1)) {
                 this.logger.info(['start as a primary']);
                 this.isPrimary = true;
@@ -207,7 +207,7 @@ class PBFTNode extends Node {
                     .map(msg => msg.P)
                     .map(P => P.map(Pm => Pm['pre-prepare']))
                     .flat();
-                const maxS = (allPrePrepare.length === 0) ? 
+                const maxS = (allPrePrepare.length === 0) ?
                     minS : allPrePrepare.map(msg => msg.n).max();
                 const O = [];
                 for (let n = minS + 1; n <= maxS; n++) {
@@ -355,9 +355,9 @@ class PBFTNode extends Node {
                     .groupBy(msg => msg.d)
                     .maxBy(pair => pair[1].length)[1],
             P: p,
-            i: this.nodeID 
+            i: this.nodeID
         }
-        this.extendVector(this.viewChange, this.view + 1);        
+        this.extendVector(this.viewChange, this.view + 1);
         this.viewChange[this.view + 1].push(viewChangeMsg);
         this.send(this.nodeID, 'broadcast', viewChangeMsg);
         const oldView = this.view;
@@ -367,7 +367,7 @@ class PBFTNode extends Node {
                 this.logger.info(['skip to next view']);
                 const view = viewChangeMsg.v;
                 viewChangeMsg.v = view + 1;
-                this.extendVector(this.viewChange, view + 1);        
+                this.extendVector(this.viewChange, view + 1);
                 this.viewChange[view + 1].push(viewChangeMsg);
                 this.send(this.nodeID, 'broadcast', viewChangeMsg);
                 setTimeout(() => {
@@ -428,7 +428,7 @@ class PBFTNode extends Node {
             view: { s: '' + this.view, w: 15 },
             seq: { s: '' + this.seq, w: 15 },
             isPrimary: { s: '' + this.isPrimary, w: 15 },
-            isInViewChange: { s: '' + this.isInViewChange, w: 15 },            
+            isInViewChange: { s: '' + this.isInViewChange, w: 15 },
             checkpoint: { s: '' + this.lastStableCheckpoint, w: 15 },
             isDecided: { s: 'false', w: 15 },
             lastDecidedSeq: { s: '' + this.lastDecidedSeq, w: 15 },
@@ -442,12 +442,12 @@ class PBFTNode extends Node {
 
     constructor(nodeID, nodeNum) {
         super(nodeID, nodeNum);
-        this.f = (this.nodeNum % 3 === 0) ? 
+        this.f = (this.nodeNum % 3 === 0) ?
             this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);
         // pbft
         this.view = 0;
         this.seq = 0;
-        this.isPrimary = 
+        this.isPrimary =
             (this.view % this.nodeNum) === (parseInt(this.nodeID) - 1);
         this.checkpointPeriod = 3;
         this.isInViewChange = false;

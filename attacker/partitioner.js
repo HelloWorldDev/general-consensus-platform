@@ -7,9 +7,9 @@ class Partitioner extends Attacker {
 
 	attack(packets) {
 		packets.forEach((packet) => {
-			if ((this.p1.includes(packet.src) && 
+			if ((this.p1.includes(packet.src) &&
 				this.p2.includes(packet.dst)) ||
-				(this.p2.includes(packet.src) && 
+				(this.p2.includes(packet.src) &&
 				this.p1.includes(packet.dst))) {
 				packet.delay = this.delay;
 			}

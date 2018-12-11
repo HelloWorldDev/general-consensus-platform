@@ -18,16 +18,16 @@ let infos = {
     system: ['No system information.']
 };
 const dashboard = new Dashboard(infos);
-// judge calculate result, update system info and restart progress
+// judge calculates result, updates system info and restarts progress
 function judge() {
     for (let nodeID = 1; nodeID <= correctNodeNum; nodeID++) {
-        if (infos['' + nodeID] === undefined || 
+        if (infos['' + nodeID] === undefined ||
             infos['' + nodeID].isDecided.s === 'false') {
             // some correct node has not decided
             return;
         }
     }
-    // kill all child process
+    // kill all child processes
     if (!childKillSent) {
         for (let nodeID in nodes) {
             nodes[nodeID].kill();

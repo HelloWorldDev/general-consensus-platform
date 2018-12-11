@@ -153,7 +153,7 @@ class VMwareNode extends Node {
         case 'notify':
             this.notify.push(msg);
             break;
-        default: 
+        default:
             this.logger.warning(['unknown message type']);
         }
         this.reportToSystem();
@@ -176,14 +176,14 @@ class VMwareNode extends Node {
     constructor(nodeID, nodeNum) {
         super(nodeID, nodeNum);
         //this.isCooling = false;
-        this.f = (this.nodeNum % 3 === 0) ? 
+        this.f = (this.nodeNum % 3 === 0) ?
             this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);
         
         // BA related
         // store all accepted
         this.accepteds = [];
-        this.accepted = { 
-            vi: 'undefined', 
+        this.accepted = {
+            vi: 'undefined',
             ki: 0,
             Ci: 'undefined'
         };

@@ -13,7 +13,7 @@ class NetworkTCP {
             this.sendToSystem(packet.content);
             return;
         }
-        if (packet.dst !== 'broadcast' && 
+        if (packet.dst !== 'broadcast' &&
             this.sockets[packet.dst] === undefined) {
             this.queue.push(packet);
             return;
@@ -34,7 +34,7 @@ class NetworkTCP {
             packets.push(packet);
         }
         // attacker attack function
-        if (Attacker !== undefined && 
+        if (Attacker !== undefined &&
             packet.src !== 'system' && packet.dst !== 'system' &&
             packet.src !== 'attacker' && packet.dst !== 'attacker') {
             packets = this.attacker.attack(packets);
@@ -56,7 +56,7 @@ class NetworkTCP {
 
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
-        this.sockets = [];     
+        this.sockets = [];
         this.queue = [];
         const server = net.createServer();
         if (Attacker !== undefined) {
@@ -76,9 +76,9 @@ class NetworkTCP {
                 }
                 // open a connection to node
                 const port = 30000 + i;
-                isConnecting[i] = true;                 
+                isConnecting[i] = true;
                 clients[i] = net.createConnection(
-                    { host: '127.0.0.1', port: port }, 
+                    { host: '127.0.0.1', port: port },
                     () => {
                         console.log('connected to node', i);
                         isConnected[i] = true;
@@ -106,7 +106,7 @@ class NetworkTCP {
                     return;
                 }
                 // every node is connected
-                if (Object.keys(this.sockets).length === 
+                if (Object.keys(this.sockets).length ===
                     config.nodeNum - config.byzantineNodeNum) {
                     if (this.queue.length !== 0) {
                         for (let packet of this.queue) {
@@ -123,9 +123,9 @@ class NetworkTCP {
             
         });
         server.on('listening', () => {
-            onCreated();        
+            onCreated();
         });
-        server.listen(config.port, config.host);        
+        server.listen(config.port, config.host);
     }
 }
 

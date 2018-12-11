@@ -18,7 +18,7 @@ class NoValidate extends Attacker {
                     // Since round 1 judges on majority,
                     // all value should be the same.
                     if (!this.attacking) {
-                        this.info[0] = 
+                        this.info[0] =
                             `capturing packet from phase ${phase} round ${round}`;
                         this.queue.push(packet);
                     }
@@ -29,7 +29,7 @@ class NoValidate extends Attacker {
                             this.releasePacketCount = 0;
                             this.queue = [];
                             const k = content.v.k;
-                            this.info[0] = 
+                            this.info[0] =
                                 `all packets from phase ${phase} round ${round} are released`;
                             this.attacking = false;
                         }
@@ -44,7 +44,7 @@ class NoValidate extends Attacker {
             }
         });
         if (!this.attacking &&
-            this.queue.length === 
+            this.queue.length ===
             this.correctNodeNum * (this.correctNodeNum - 1)) {
             this.attacking = true;
             // all init msg of round 2 is collected
@@ -55,9 +55,9 @@ class NoValidate extends Attacker {
             const phase = (k - round) / 3;
             // propose a different value to make them diverge
             const bv = 1 - nbv;
-            this.info[0] = `non-Byzantine nodes proposed: ${nbv}, ` + 
+            this.info[0] = `non-Byzantine nodes proposed: ${nbv}, ` +
                 `attacker proposed: ${bv}`;
-            for (let attackerID = this.correctNodeNum + 1; 
+            for (let attackerID = this.correctNodeNum + 1;
                 attackerID <= config.nodeNum; attackerID++) {
                 this.reportNodeToSystem('' + attackerID, '' + bv);
                 const v = {
@@ -79,8 +79,8 @@ class NoValidate extends Attacker {
             // release packets from non-Byzantine nodes after
             // Byzantine nodes values are accepted
             setTimeout(() => {
-                this.info[0] = 
-                    `releasing packets from phase ${phase} round ${round}`;                
+                this.info[0] =
+                    `releasing packets from phase ${phase} round ${round}`;
                 for (let packet of this.queue) {
                     //console.log(packet);
                     this.send(packet.src, packet.dst, packet.content);
