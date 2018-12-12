@@ -13,20 +13,17 @@ class VMwareNode extends Node {
         }
     }
 
-    decide() {
-
-    }
-
     runBALogic(round) {
         switch (round) {
         case 1:
             // end of notify and start of status
-            this.notify.forEach(msg => {
+            this.extendVector(this.notify, this.k);
+            if (this.notify[this.k].length > 0) {
+                const msg = this.notify[this.k][0];
                 this.accepted.vi = msg.notify.v;
                 this.accepted.Ci = msg.Ci;
                 this.accepted.ki = this.k;
-            });
-
+            };
             this.k++;
             this.leader = '' + (this.k % this.nodeNum + 1);
             const statusMsg = {
@@ -166,6 +163,7 @@ class VMwareNode extends Node {
             this.commit.push(msg);
             break;
         case 'notify':
+            // sanity check on msg.Ci
             const k = msg.Ci[0].k;
             this.extendVector(this.notify, k);
             this.notify[k].push(msg);
