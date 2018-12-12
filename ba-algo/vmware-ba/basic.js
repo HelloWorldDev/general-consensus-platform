@@ -13,6 +13,12 @@ class VMwareNode extends Node {
         }
     }
 
+    decide(v) {
+        clearTimeout(this.BALogicTimer);        
+        this.logger.info([`decide on ${v}`]);
+        this.isDecided = true;
+    }
+
     runBALogic(round) {
         switch (round) {
         case 1:
@@ -35,7 +41,7 @@ class VMwareNode extends Node {
                 Ci: this.accepted.Ci
             };
             this.send(this.nodeID, this.leader, statusMsg);
-            setTimeout(() => {
+            this.BALogicTimer = setTimeout(() => {
                 this.runBALogic(2);
             }, 2 * config.lambda * 1000);
             break;
@@ -71,7 +77,7 @@ class VMwareNode extends Node {
                 this.send(this.nodeID, this.nodeID, proposeMsg);
                 this.status = [];
             }
-            setTimeout(() => {
+            this.BALogicTimer = setTimeout(() => {
                 this.runBALogic(3);
             }, 2 * config.lambda * 1000);
             break;
@@ -89,7 +95,7 @@ class VMwareNode extends Node {
                 this.send(this.nodeID, 'broadcast', commitMsg);
                 this.send(this.nodeID, this.nodeID, commitMsg);
             }
-            setTimeout(() => {
+            this.BALogicTimer = setTimeout(() => {
                 this.runBALogic(4);
             }, 2 * config.lambda * 1000);
             break;
@@ -104,7 +110,6 @@ class VMwareNode extends Node {
                 if (C.length >= this.f + 1) {
                     this.accepted.vi = this.vLi;
                     this.accepted.Ci = C;
-                    //this.logger.info(['decide', this.vLi]);
                     const notifyMsg = {
                         sender: this.nodeID,
                         type: 'notify',
@@ -122,7 +127,7 @@ class VMwareNode extends Node {
             this.propose = [];
             this.commit = [];
             this.vLi = 'undefined';
-            setTimeout(() => {
+            this.BALogicTimer = setTimeout(() => {
                 this.runBALogic(1);
             }, 2 * config.lambda * 1000);
             break;
@@ -176,14 +181,18 @@ class VMwareNode extends Node {
                     headers: headers
                 };
                 this.send(this.nodeID, 'broadcast', headerMsg);
-                this.logger.info([`decide on ${headers[0].v}`]);
-                this.isDecided = true;
+                this.decide(headers[0].v);
             }
             break;
         case 'notify-headers':
             // sanity check
-            this.logger.info([`decide on ${msg.headers[0].v}`]);
-            this.isDecided = true;
+            const headerMsg = {
+                sender: this.nodeID,
+                type: 'notify-headers',
+                headers: msg.headers
+            };
+            this.send(this.nodeID, 'broadcast', headerMsg);            
+            this.decide(msg.headers[0].v);
             break;
         default:
             this.logger.warning(['unknown message type']);
