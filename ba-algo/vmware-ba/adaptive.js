@@ -131,6 +131,14 @@ class VMwareNode extends Node {
             break;
         case 6:
             // end of elect and start of commit
+            // remove duplicate leader proposal
+            this.flPropose = this.flPropose
+                .groupBy(msg => msg.sender)
+                // [[sender, [msg]], [sender, [msg]]]
+                .filter(arr => arr[1].length <= 1)
+                .map(arr => arr[1])
+                // [[msg], [msg]]
+                .flat();
             this.flPropose.sort((msgA, msgB) => {
                 if (msgA.kL < msgB.kL) {
                     return 1;
@@ -139,12 +147,7 @@ class VMwareNode extends Node {
                     return -1;
                 }
                 else {
-                    if (this.elect[msgA.sender] < this.elect[msgB.sender]) {
-                        return 1;
-                    }
-                    else {
-                        return -1;
-                    }
+                    return (msgA.proposeMsg.y < msgB.proposeMsg.y) ? 1 : -1;
                 }
             });
             const bestProposal = this.flPropose[0];
@@ -180,6 +183,7 @@ class VMwareNode extends Node {
             if (this.propose.some(msg => msg.vL !== this.vLi)) {
                 // leader has equivocated
                 // do not commit
+                this.logger.warning(['leader has equivocated']);
             }
             else {
                 const C = this.commit.filter(msg => msg.vLi === this.vLi);
