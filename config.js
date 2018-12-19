@@ -1,12 +1,12 @@
 module.exports = {
 	// node
 	nodeNum: 16,
-	byzantineNodeNum: 5,
+	byzantineNodeNum: 0,
 	// ba
 	useExternalBA: false,
 	// ba specific param
 	lambda: 1,
-	BAType: 'vmware-ba/basic',
+	BAType: 'dexon-ba',
 	configPath: '/Users/nicky/general-consensus-platform/tendermint/mytestnet/node',
 	// network env
 	networkType: 'tcp-json',
@@ -15,7 +15,7 @@ module.exports = {
 	networkDelay: 0.25,
 	startDelay: 0,
 	// simulator
-	showDashboard: false,
+	showDashboard: true,
 	// attacker
 	attacker: 'attacker'
 };
