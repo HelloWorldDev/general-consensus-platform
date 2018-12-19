@@ -17,6 +17,7 @@ class VMwareNode extends Node {
         clearTimeout(this.BALogicTimer);        
         this.logger.info([`decide on ${v}`]);
         this.isDecided = true;
+        this.decidedValue = v;        
     }
 
     runBALogic(round) {
@@ -226,7 +227,8 @@ class VMwareNode extends Node {
             round: { s: '' + this.k, w: 15 },
             leader: { s: this.leader, w: 15 },
             accepted: { s: acceptedS, w: 70 },
-            isDecided: { s: 'false', w: 15 }
+            isDecided: { s: `${this.isDecided}`, w: 15 },
+            decidedValue: { s: `${this.decidedValue}`, w: 15 }            
         };
         this.send(this.nodeID, 'system', {
             sender: this.nodeID,
@@ -257,6 +259,7 @@ class VMwareNode extends Node {
         this.commit = [];
         this.notify = [];
         this.isDecided = false;
+        this.decidedValue = undefined;        
         // wait 2 sec for other nodes to initialize
         const initStatusMsg = {
             sender: this.nodeID,
