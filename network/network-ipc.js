@@ -35,6 +35,7 @@ class Network {
             packets = packets
                 .filter(packet => this.availableDst.has(packet.dst));
         }
+        this.totalMsgCount += packets.length;
         // send packets
         packets.forEach((packet) => {
             setTimeout(() => {
@@ -45,6 +46,7 @@ class Network {
 
     removeNodes() {
         this.nodes = {};
+        this.totalMsgCount = 0;
     }
 
     addNodes(nodes) {
@@ -60,6 +62,7 @@ class Network {
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
         this.availableDst = [];
+        this.totalMsgCount = 0;
         if (Attacker !== undefined) {
             this.attacker = new Attacker(this);
         }

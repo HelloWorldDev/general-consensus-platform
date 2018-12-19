@@ -19,6 +19,27 @@ class Simulator {
                 return;
             }
         }
+        // check result
+        const finalStates = [];
+        for (let nodeID in this.infos) {
+            if (nodeID === 'system' || nodeID === 'attacker') {
+                continue;
+            }
+            if (parseInt(nodeID) <= this.correctNodeNum) {
+                finalStates.push({ 
+                    decidedValue: this.infos[nodeID].decidedValue.s,
+                    round: parseInt(this.infos[nodeID].round.s)
+                });
+            }
+        }
+        const agreementPass = (finalStates.length === this.correctNodeNum) &&
+            (finalStates.every(state => state.decidedValue === finalStates[0].decidedValue));
+        const maxRound = finalStates.map(state => state.round).max();
+        this.infos.system[0] = `agreementPass: ${agreementPass}, ` + 
+            `maxRound: ${maxRound}, ` + 
+            `totalMsgCount: ${this.network.totalMsgCount}`;
+        console.log(this.infos.system[0]);
+
         // kill all child processes
         if (!this.childKillSent) {
             for (let nodeID in this.nodes) {
@@ -92,7 +113,9 @@ class Simulator {
             // send to system
             (msg) => {
                 this.infos[msg.sender] = msg.info;
-                this.judge();
+                if (msg.sender !== 'system' && msg.sender !== 'attacker') {
+                    this.judge();
+                }
                 if (config.showDashboard) {
                     this.dashboard.update();
                 }

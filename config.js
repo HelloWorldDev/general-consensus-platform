@@ -15,7 +15,7 @@ module.exports = {
 	networkDelay: 0.25,
 	startDelay: 0,
 	// simulator
-	showDashboard: true,
+	showDashboard: false,
 	// attacker
 	attacker: 'attacker'
 };
