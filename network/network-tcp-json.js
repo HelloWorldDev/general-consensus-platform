@@ -44,6 +44,7 @@ class NetworkTCP {
             packets = packets
                 .filter(packet => this.availableDst.has(packet.dst));
         }
+        this.totalMsgCount += packets.length;        
         // send packets
         packets.forEach((packet) => {
             setTimeout(() => {
@@ -54,6 +55,7 @@ class NetworkTCP {
 
     removeNodes() {
         this.sockets = {};
+        this.totalMsgCount = 0;
     }
     addNodes(nodes) {
         for (let nodeID in nodes) {
@@ -66,6 +68,7 @@ class NetworkTCP {
         this.sockets = {};
         this.queue = [];
         this.availableDst = [];
+        this.totalMsgCount = 0;
         const server = net.createServer();
         if (Attacker !== undefined) {
             this.attacker = new Attacker({
