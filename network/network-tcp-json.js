@@ -27,7 +27,7 @@ class NetworkTCP {
                 if (nodeID === packet.src || nodeID === 'system') {
                     continue;
                 }
-        	packet.delay = Math.random() * config.networkDelay;
+        	    packet.delay = Math.random() * config.networkDelay;
                 packet.dst = nodeID;
                 packets.push(JSON.parse(JSON.stringify(packet)));
             }

@@ -19,7 +19,7 @@ class Network {
                 if (nodeID === packet.src) {
                     continue;
                 }
-        	packet.delay = Math.random() * config.networkDelay;
+        	    packet.delay = Math.random() * config.networkDelay;
                 packet.dst = nodeID;
                 packets.push(JSON.parse(JSON.stringify(packet)));
             }
