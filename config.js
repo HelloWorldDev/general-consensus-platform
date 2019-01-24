@@ -6,7 +6,7 @@ module.exports = {
 	useExternalBA: false,
 	// ba specific param
 	lambda: 1,
-	BAType: 'vmware-ba/adaptive',
+	BAType: 'dexon-hba',
 	configPath: '/Users/nicky/general-consensus-platform/tendermint/mytestnet/node',
 	// network env
 	networkType: 'tcp-json',
