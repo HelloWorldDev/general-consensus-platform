@@ -112,6 +112,8 @@ class VMwareNode extends Node {
                 if (C.length >= this.f + 1) {
                     this.accepted.vi = this.vLi;
                     this.accepted.Ci = C;
+                    const proof = 
+                        JSON.parse(JSON.stringify(C)).splice(0, this.f + 1);
                     const notifyMsg = {
                         sender: this.nodeID,
                         type: 'notify',
@@ -120,7 +122,7 @@ class VMwareNode extends Node {
                             type: 'notify-header',
                             v: this.vLi
                         },
-                        Ci: C
+                        Ci: proof
                     };
                     this.send(this.nodeID, 'broadcast', notifyMsg);
                     this.send(this.nodeID, this.nodeID, notifyMsg);
