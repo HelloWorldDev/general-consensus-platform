@@ -18,6 +18,7 @@ class VMwareNode extends Node {
         this.logger.info([`decide on ${v}`]);
         this.isDecided = true;
         this.decidedValue = v;
+        this.reportToSystem();
     }
 
     runBALogic(round) {
@@ -27,7 +28,7 @@ class VMwareNode extends Node {
             this.extendVector(this.notify, this.k);
             if (this.notify[this.k].length > 0) {
                 const msg = this.notify[this.k][0];
-                this.accepted.vi = msg.notify.v;
+                this.accepted.vi = msg.header.v;
                 this.accepted.Ci = msg.Ci;
                 this.accepted.ki = this.k;
             };
