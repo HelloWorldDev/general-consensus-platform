@@ -32,7 +32,6 @@ class NetworkTCP {
         let packets = [];
         packet.delay = 
             this.getDelay(config.networkDelay.mean, config.networkDelay.std);
-            console.log(packet.delay);
         // add delay according to config
         if (packet.dst === 'broadcast') {
             for (let nodeID in this.sockets) {
@@ -57,7 +56,9 @@ class NetworkTCP {
             packets = packets
                 .filter(packet => this.availableDst.has(packet.dst));
         }
-        this.totalMsgCount += packets.length;        
+        this.totalMsgCount += packets.length;
+        this.totalMsgBytes += packets.reduce(
+            (sum, packet) => sum + JSON.stringify(packet.content).length, 0);
         // send packets
         packets.forEach((packet) => {
             setTimeout(() => {
@@ -69,6 +70,7 @@ class NetworkTCP {
     removeNodes() {
         this.sockets = {};
         this.totalMsgCount = 0;
+        this.totalMsgBytes = 0;
     }
     addNodes(nodes) {
         for (let nodeID in nodes) {
@@ -82,6 +84,7 @@ class NetworkTCP {
         this.queue = [];
         this.availableDst = [];
         this.totalMsgCount = 0;
+        this.totalMsgBytes = 0;
         const server = net.createServer();
         if (Attacker !== undefined) {
             this.attacker = new Attacker({

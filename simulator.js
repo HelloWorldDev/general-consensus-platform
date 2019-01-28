@@ -35,11 +35,13 @@ class Simulator {
         const agreementPass = (finalStates.length === this.correctNodeNum) &&
             (finalStates.every(state => state.decidedValue === finalStates[0].decidedValue));
         const maxRound = finalStates.map(state => state.round).max();
+        const latency = new Date() - this.startTime;
         this.infos.system[0] = `agreementPass: ${agreementPass}, ` + 
             `maxRound: ${maxRound}, ` + 
-            `totalMsgCount: ${this.network.totalMsgCount}`;
+            `latency: ${latency} ms, ` +
+            `totalMsgCount: ${this.network.totalMsgCount}, ` + 
+            `totalMsgBytes: ${this.network.totalMsgBytes} bytes`;
         console.log(this.infos.system[0]);
-
         // kill all child processes
         if (!this.childKillSent) {
             for (let nodeID in this.nodes) {
@@ -68,6 +70,7 @@ class Simulator {
 
     startSimulation() {
         this.simCount++;
+        this.start = true;
         this.infos.system[0] = `Start simulation #${this.simCount}`;
         // fork nodes
         this.childKillSent = false;
@@ -96,6 +99,7 @@ class Simulator {
         };
         this.dashboard = new Dashboard(this.infos);
         // simulator
+        this.start = false;
         this.simCount = 0;
         this.nodes = {};
         this.nodeNum = config.nodeNum;
@@ -114,6 +118,11 @@ class Simulator {
             (msg) => {
                 this.infos[msg.sender] = msg.info;
                 if (msg.sender !== 'system' && msg.sender !== 'attacker') {
+                    if (this.start) {
+                        // receive first node message
+                        this.startTime = new Date();
+                        this.start = false;
+                    }
                     this.judge();
                 }
                 if (config.showDashboard) {
