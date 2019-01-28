@@ -14,7 +14,7 @@ module.exports = {
 	port: 36251,
 	networkDelay: {
 		mean: 0.25,
-		std: 0.1,
+		std: 0,
 	},
 	startDelay: 0,
 	// simulator

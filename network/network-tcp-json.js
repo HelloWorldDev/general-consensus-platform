@@ -23,6 +23,10 @@ class NetworkTCP {
             this.sendToSystem(packet.content);
             return;
         }
+        if (this.init) {
+            this.startTime = Date.now();
+            this.init = false;
+        }
         if (packet.dst !== 'broadcast' &&
             this.availableDst.has(packet.dst) &&
             this.sockets[packet.dst] === undefined) {
@@ -71,6 +75,7 @@ class NetworkTCP {
         this.sockets = {};
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
+        this.init = true;
     }
     addNodes(nodes) {
         for (let nodeID in nodes) {
@@ -85,6 +90,7 @@ class NetworkTCP {
         this.availableDst = [];
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
+        this.init = true;
         const server = net.createServer();
         if (Attacker !== undefined) {
             this.attacker = new Attacker({

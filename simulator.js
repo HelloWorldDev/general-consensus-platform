@@ -35,7 +35,7 @@ class Simulator {
         const agreementPass = (finalStates.length === this.correctNodeNum) &&
             (finalStates.every(state => state.decidedValue === finalStates[0].decidedValue));
         const maxRound = finalStates.map(state => state.round).max();
-        const latency = new Date() - this.startTime;
+        const latency = Date.now() - this.network.startTime;
         this.infos.system[0] = `agreementPass: ${agreementPass}, ` + 
             `maxRound: ${maxRound}, ` + 
             `latency: ${latency} ms, ` +
@@ -61,7 +61,7 @@ class Simulator {
                     this.infos = {
                         system: ['No system information.']
                     };
-                    this.dashboard.infos = infos;
+                    this.dashboard.infos = this.infos;
                     this.startSimulation();
                 }
             }, 1000);
@@ -70,7 +70,6 @@ class Simulator {
 
     startSimulation() {
         this.simCount++;
-        this.start = true;
         this.infos.system[0] = `Start simulation #${this.simCount}`;
         // fork nodes
         this.childKillSent = false;
@@ -99,7 +98,6 @@ class Simulator {
         };
         this.dashboard = new Dashboard(this.infos);
         // simulator
-        this.start = false;
         this.simCount = 0;
         this.nodes = {};
         this.nodeNum = config.nodeNum;
@@ -118,11 +116,6 @@ class Simulator {
             (msg) => {
                 this.infos[msg.sender] = msg.info;
                 if (msg.sender !== 'system' && msg.sender !== 'attacker') {
-                    if (this.start) {
-                        // receive first node message
-                        this.startTime = new Date();
-                        this.start = false;
-                    }
                     this.judge();
                 }
                 if (config.showDashboard) {

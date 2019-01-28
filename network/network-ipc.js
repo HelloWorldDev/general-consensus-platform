@@ -21,6 +21,10 @@ class Network {
             this.sendToSystem(packet.content);
             return;
         }
+        if (this.init) {
+            this.startTime = Date.now();
+            this.init = false;
+        }
         let packets = [];
         packet.delay = 
             this.getDelay(config.networkDelay.mean, config.networkDelay.std);
@@ -62,7 +66,8 @@ class Network {
     removeNodes() {
         this.nodes = {};
         this.totalMsgCount = 0;
-        this.totalMsgBytes = 0;        
+        this.totalMsgBytes = 0;
+        this.init = true;
     }
 
     addNodes(nodes) {
@@ -79,7 +84,8 @@ class Network {
         this.sendToSystem = sendToSystem;
         this.availableDst = [];
         this.totalMsgCount = 0;
-        this.totalMsgBytes = 0;        
+        this.totalMsgBytes = 0;
+        this.init = true;
         if (Attacker !== undefined) {
             this.attacker = new Attacker(this);
         }
