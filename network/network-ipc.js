@@ -57,9 +57,9 @@ class Network {
             (sum, packet) => sum + JSON.stringify(packet.content).length, 0);
         // send packets
         packets.forEach((packet) => {
-            setTimeout(() => {
+            this.timers.push(setTimeout(() => {
                 this.nodes[packet.dst].send(packet.content);
-            }, packet.delay * 1000);
+            }, packet.delay * 1000));
         });
     }
 
@@ -68,6 +68,8 @@ class Network {
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
         this.init = true;
+        this.timers.forEach(clearTimeout);
+        this.timers = [];
     }
 
     addNodes(nodes) {
@@ -83,6 +85,7 @@ class Network {
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
         this.availableDst = [];
+        this.timers = [];
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
         this.init = true;

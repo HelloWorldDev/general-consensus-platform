@@ -26,9 +26,7 @@ class PBFTNode extends Node {
         if (this.digest[d] !== undefined &&
             this.prePrepare[v][n][0] !== undefined) {
             const d = this.prePrepare[v][n][0].d;
-            const count = this.prepare[v][n]
-                .filter(msg => (msg.d === d))
-                .length;
+            const count = this.prepare[v][n].filter(msg => (msg.d === d)).length;
             return (count >= 2 * this.f + 1);
         }
         return false;
@@ -38,9 +36,7 @@ class PBFTNode extends Node {
         // 2f + 1 commit<v, n, d, i> is in log that match pre-prepare<m, v, n>
         if (this.isPrepared(d, v, n)) {
             const d = this.prePrepare[v][n][0].d;
-            const count = this.commit[v][n]
-                .filter(msg => (msg.d === d))
-                .length;
+            const count = this.commit[v][n].filter(msg => (msg.d === d)).length;
             return (count >= 2 * this.f + 1);
         }
         return false;
@@ -473,9 +469,6 @@ class PBFTNode extends Node {
         this.commit = [];
         this.checkpoint = [];
         this.viewChange = [];
-        // system
-        //this.isDecided = false;
-        //this.decidedValue = {};
         // start after 2s
         setTimeout(() => {
             if (this.isPrimary) {

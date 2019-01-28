@@ -13,8 +13,8 @@ module.exports = {
 	host: 'localhost',
 	port: 36251,
 	networkDelay: {
-		mean: 0.25,
-		std: 0,
+		mean: 5,
+		std: 0.3,
 	},
 	startDelay: 0,
 	// simulator

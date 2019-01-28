@@ -40,7 +40,7 @@ class Simulator {
             `maxRound: ${maxRound}, ` + 
             `latency: ${latency} ms, ` +
             `totalMsgCount: ${this.network.totalMsgCount}, ` + 
-            `totalMsgBytes: ${this.network.totalMsgBytes} bytes`;
+            `totalMsgBytes: ${Math.round(this.network.totalMsgBytes / 1000)} bytes`;
         console.log(this.infos.system[0]);
         // kill all child processes
         if (!this.childKillSent) {

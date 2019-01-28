@@ -65,9 +65,9 @@ class NetworkTCP {
             (sum, packet) => sum + JSON.stringify(packet.content).length, 0);
         // send packets
         packets.forEach((packet) => {
-            setTimeout(() => {
+            this.timers.push(setTimeout(() => {
                 this.sockets[packet.dst].sendMessage(packet.content);
-            }, packet.delay * 1000);
+            }, packet.delay * 1000));
         });
     }
 
@@ -76,6 +76,8 @@ class NetworkTCP {
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
         this.init = true;
+        this.timers.forEach(clearTimeout);
+        this.timers = [];
     }
     addNodes(nodes) {
         for (let nodeID in nodes) {
@@ -85,6 +87,7 @@ class NetworkTCP {
 
     constructor(onCreated, sendToSystem) {
         this.sendToSystem = sendToSystem;
+        this.timers = [];
         this.sockets = {};
         this.queue = [];
         this.availableDst = [];
