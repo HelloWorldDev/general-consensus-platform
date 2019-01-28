@@ -159,6 +159,8 @@ class PBFTNode extends Node {
                 this.lastDecidedSeq = msg.n;
                 this.lastDecidedRequest = msg.d;
                 this.logger.info(['decide', msg.d]);
+                this.isDecided = true;
+                this.reportToSystem();
                 if (msg.n % this.checkpointPeriod === 0) {
                     const checkpointMsg = {
                         type: 'checkpoint',
@@ -430,9 +432,11 @@ class PBFTNode extends Node {
             isPrimary: { s: '' + this.isPrimary, w: 15 },
             isInViewChange: { s: '' + this.isInViewChange, w: 15 },
             checkpoint: { s: '' + this.lastStableCheckpoint, w: 15 },
-            isDecided: { s: 'false', w: 15 },
+            isDecided: { s: '' + this.isDecided, w: 15 },
             lastDecidedSeq: { s: '' + this.lastDecidedSeq, w: 15 },
             lastDecidedRequest: { s: this.lastDecidedRequest, w: 50 },
+            decidedValue: { s: 'NA', w: 50 },
+            round: { s: 'NA', w: 15 }
         };
         this.send(this.nodeID, 'system', {
             sender: this.nodeID,
@@ -454,6 +458,7 @@ class PBFTNode extends Node {
         this.proposePeriod = 2;
         this.lastDecidedSeq = -1;
         this.lastDecidedRequest = '';
+        this.isDecided = false;
         // view change
         // check if a node receive a request in time
         this.receiveTimeout = 5;
