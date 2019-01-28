@@ -6,20 +6,32 @@ const Attacker = (config.attacker) ?
 
 class Network {
 
+    getDelay(mean, std) {
+        function get01BM() {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+        return get01BM() * std + mean;
+    }
+
     transfer(packet) {
         if (packet.dst === 'system') {
             this.sendToSystem(packet.content);
             return;
         }
         let packets = [];
-        packet.delay = Math.random() * config.networkDelay;
+        packet.delay = 
+            this.getDelay(config.networkDelay.mean, config.networkDelay.std);
         // add delay according to config
         if (packet.dst === 'broadcast') {
             for (let nodeID in this.nodes) {
                 if (nodeID === packet.src) {
                     continue;
                 }
-        	    packet.delay = Math.random() * config.networkDelay;
+                packet.delay =
+                    this.getDelay(config.networkDelay.mean, config.networkDelay.std);
                 packet.dst = nodeID;
                 packets.push(JSON.parse(JSON.stringify(packet)));
             }

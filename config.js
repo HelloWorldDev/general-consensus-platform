@@ -12,10 +12,13 @@ module.exports = {
 	networkType: 'tcp-json',
 	host: 'localhost',
 	port: 36251,
-	networkDelay: 0.25,
+	networkDelay: {
+		mean: 0.25,
+		std: 0.1,
+	},
 	startDelay: 0,
 	// simulator
-	showDashboard: true,
+	showDashboard: false,
 	// attacker
 	attacker: 'attacker'
 };
