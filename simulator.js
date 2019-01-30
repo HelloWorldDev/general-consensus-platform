@@ -20,6 +20,10 @@ class Simulator {
             }
         }
         // check result
+        if (this.isAllDecided) {
+            return;
+        }
+        this.isAllDecided = true;
         const finalStates = [];
         for (let nodeID in this.infos) {
             if (nodeID === 'system' || nodeID === 'attacker') {
@@ -40,7 +44,7 @@ class Simulator {
             `maxRound: ${maxRound}, ` + 
             `latency: ${latency} ms, ` +
             `totalMsgCount: ${this.network.totalMsgCount}, ` + 
-            `totalMsgBytes: ${Math.round(this.network.totalMsgBytes / 1000)} bytes`;
+            `totalMsgBytes: ${Math.round(this.network.totalMsgBytes / 1000)} kb`;
         console.log(this.infos.system[0]);
         // kill all child processes
         if (!this.childKillSent) {
@@ -62,6 +66,7 @@ class Simulator {
                         system: ['No system information.']
                     };
                     this.dashboard.infos = this.infos;
+                    this.isAllDecided = false;
                     this.startSimulation();
                 }
             }, 1000);
@@ -77,15 +82,17 @@ class Simulator {
             // modify this to run external BA algorithms
         }
         else {
+            const targetStartTimeBase = Date.now() + 2000;
             const nodeProgram = path.resolve(`./ba-algo/${config.BAType}.js`);
             for (let nodeID = 1; nodeID <= this.correctNodeNum; nodeID++) {
-                setTimeout(() => {
-                    let node = fork(nodeProgram, ['' + nodeID, this.nodeNum]);
-                    this.nodes[nodeID] = node;
-                    if (nodeID === this.correctNodeNum) {
-                        this.network.addNodes(this.nodes);
-                    }
-                }, nodeID * config.startDelay * 1000);
+                const targetStartTime = 
+                    targetStartTimeBase + nodeID * config.startDelay * 1000;
+                let node = fork(nodeProgram, 
+                    ['' + nodeID, this.nodeNum, targetStartTime]);
+                this.nodes[nodeID] = node;
+                if (nodeID === this.correctNodeNum) {
+                    this.network.addNodes(this.nodes);
+                }
             }
         }
     }

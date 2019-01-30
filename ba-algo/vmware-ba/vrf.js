@@ -263,7 +263,6 @@ class VMwareNode extends Node {
         this.notify = [];
         this.isDecided = false;
         this.decidedValue = undefined;        
-        // wait 2 sec for other nodes to initialize
         const initStatusMsg = {
             sender: this.nodeID,
             type: 'status',
@@ -273,13 +272,14 @@ class VMwareNode extends Node {
             Ci: this.accepted.Ci
         };
         this.status.push(initStatusMsg);
+        const targetStartTime = process.argv[4];
         setTimeout(() => {
             this.send(this.nodeID, 'broadcast', initStatusMsg);
             // go to round 2 after 2l
             setTimeout(() => {
                 this.runBALogic(2);
             }, 2 * config.lambda * 1000);
-        }, 2000);
+        }, targetStartTime - Date.now());
     }
 }
 const n = new VMwareNode(process.argv[2], process.argv[3]);

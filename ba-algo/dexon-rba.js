@@ -318,7 +318,7 @@ class DEXONNode extends Node {
             value: this.initValue
         };
         this.values.push(initMsg);
-        // wait 2 sec for other nodes to initialize
+        const targetStartTime = process.argv[4];
         setTimeout(() => {
             this.send(this.nodeID, 'broadcast', initMsg);
             // go to step 2 after 2l
@@ -326,7 +326,7 @@ class DEXONNode extends Node {
                 this.step = 2;
                 this.runBALogic();
             }, 2 * this.lambda * 1000);
-        }, 2000);
+        }, targetStartTime - Date.now());
     }
 }
 const n = new DEXONNode(process.argv[2], process.argv[3]);

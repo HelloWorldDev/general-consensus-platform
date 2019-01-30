@@ -457,9 +457,9 @@ class PBFTNode extends Node {
         this.isDecided = false;
         // view change
         // check if a node receive a request in time
-        this.receiveTimeout = 5;
+        this.receiveTimeout = 8;
         this.hasReceiveRequest = false;
-        this.executeTimeout = 4;
+        this.executeTimeout = 8;
         // this makes nodes create checkpoint at n = 0
         this.lastStableCheckpoint = -this.checkpointPeriod;
         // log
@@ -469,7 +469,7 @@ class PBFTNode extends Node {
         this.commit = [];
         this.checkpoint = [];
         this.viewChange = [];
-        // start after 2s
+        const targetStartTime = process.argv[4];
         setTimeout(() => {
             if (this.isPrimary) {
                 this.startPrimary();
@@ -483,7 +483,7 @@ class PBFTNode extends Node {
                     }
                 }, this.receiveTimeout * 1000);
             }
-        }, 2000);
+        }, targetStartTime - Date.now());
     }
 }
 const n = new PBFTNode(process.argv[2], process.argv[3]);

@@ -263,11 +263,11 @@ class ABANode extends Node {
             value: this.initValue,
             ID: uuid()
         };
-        // wait 2 sec for other nodes to initialize
+        const targetStartTime = process.argv[4];
         //if (this.nodeID === '1') {
             setTimeout(() => {
                 this.broadcast2pc(initV);
-            }, 2000);
+            }, targetStartTime - Date.now());
         //}
     }
 }
