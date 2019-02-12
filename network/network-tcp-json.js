@@ -15,6 +15,7 @@ class NetworkTCP {
             while (v === 0) v = Math.random();
             return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         }
+        //return 0.25;
         return get01BM() * std + mean;
     }
 
@@ -65,9 +66,11 @@ class NetworkTCP {
             (sum, packet) => sum + JSON.stringify(packet.content).length, 0);
         // send packets
         packets.forEach((packet) => {
+            const waitTime = 
+                packet.delay * 1000 - (Date.now() - packet.content.sendTime);
             this.timers.push(setTimeout(() => {
                 this.sockets[packet.dst].sendMessage(packet.content);
-            }, packet.delay * 1000));
+            }, waitTime));
         });
     }
 

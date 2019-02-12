@@ -1,6 +1,6 @@
 module.exports = {
 	// node
-	nodeNum: 16,
+	nodeNum: 32,
 	byzantineNodeNum: 0,
 	// ba
 	useExternalBA: false,
@@ -13,8 +13,8 @@ module.exports = {
 	host: 'localhost',
 	port: 36251,
 	networkDelay: {
-		mean: 5,
-		std: 0.3,
+		mean: 0.25,
+		std: 0.1,
 	},
 	startDelay: 0,
 	// simulator
@@ -23,8 +23,5 @@ module.exports = {
 	attacker: 'attacker'
 };
 /* fast todo
-	1. pbft
 	2. cachin ba
-	4. system calculate time reach consensus
-	5. system calculate message number
 */

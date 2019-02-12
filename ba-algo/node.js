@@ -14,6 +14,7 @@ class Node {
         if (dst !== 'system') {
             this.logger.info(['send', dst, JSON.stringify(msg)]);
         }
+        msg.sendTime = Date.now();
         this.network.send(src, dst, msg);
     }
 

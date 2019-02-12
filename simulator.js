@@ -82,7 +82,7 @@ class Simulator {
             // modify this to run external BA algorithms
         }
         else {
-            const targetStartTimeBase = Date.now() + 2000;
+            const targetStartTimeBase = Date.now() + 4000;
             const nodeProgram = path.resolve(`./ba-algo/${config.BAType}.js`);
             for (let nodeID = 1; nodeID <= this.correctNodeNum; nodeID++) {
                 const targetStartTime = 
