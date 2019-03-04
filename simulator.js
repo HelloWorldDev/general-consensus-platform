@@ -5,8 +5,10 @@ const path = require('path');
 const Logger = require('./lib/logger');
 const Dashboard = require('./lib/dashboard');
 const config = require('./config');
-const Network = require('./network/network-' + config.networkType);
+const Network = require('./network/network');
 const NetworkInterface = require('./lib/network-interface');
+const FastPriorityQueue = require('fastpriorityqueue');
+const Node = require(`./ba-algo/${config.BAType}.js`);
 
 class Simulator {
 
@@ -39,14 +41,25 @@ class Simulator {
         const agreementPass = (finalStates.length === this.correctNodeNum) &&
             (finalStates.every(state => state.decidedValue === finalStates[0].decidedValue));
         const maxRound = finalStates.map(state => state.round).max();
-        const latency = Date.now() - this.network.startTime;
+        const timeSpent = Date.now() - this.network.startTime;
         this.infos.system[0] = `agreementPass: ${agreementPass}, ` + 
             `maxRound: ${maxRound}, ` + 
-            `latency: ${latency} ms, ` +
+            `latency: ${this.clock} ms, ` +
             `totalMsgCount: ${this.network.totalMsgCount}, ` + 
             `totalMsgBytes: ${Math.round(this.network.totalMsgBytes / 1000)} kb`;
         console.log(this.infos.system[0]);
         // kill all child processes
+        if (this.network.attacker.updateParam()) {
+            this.nodes = {};
+            this.network.removeNodes();
+            this.infos = {
+                system: ['No system information.']
+            };
+            this.dashboard.infos = this.infos;
+            this.isAllDecided = false;
+            this.startSimulation();
+        }
+        /*
         if (!this.childKillSent) {
             for (let nodeID in this.nodes) {
                 this.nodes[nodeID].kill();
@@ -60,17 +73,10 @@ class Simulator {
                 }
                 clearInterval(t);
                 if (this.network.attacker.updateParam()) {
-                    this.nodes = {};
-                    this.network.removeNodes();
-                    this.infos = {
-                        system: ['No system information.']
-                    };
-                    this.dashboard.infos = this.infos;
-                    this.isAllDecided = false;
-                    this.startSimulation();
+                    
                 }
             }, 1000);
-        }
+        }*/
     }
 
     startSimulation() {
@@ -78,23 +84,57 @@ class Simulator {
         this.infos.system[0] = `Start simulation #${this.simCount}`;
         // fork nodes
         this.childKillSent = false;
-        if (config.useExternalBA) {
-            // modify this to run external BA algorithms
-        }
-        else {
-            const targetStartTimeBase = Date.now() + 4000;
-            const nodeProgram = path.resolve(`./ba-algo/${config.BAType}.js`);
-            for (let nodeID = 1; nodeID <= this.correctNodeNum; nodeID++) {
-                const targetStartTime = 
-                    targetStartTimeBase + nodeID * config.startDelay * 1000;
-                let node = fork(nodeProgram, 
-                    ['' + nodeID, this.nodeNum, targetStartTime]);
-                this.nodes[nodeID] = node;
-                if (nodeID === this.correctNodeNum) {
-                    this.network.addNodes(this.nodes);
+        for (let nodeID = 1; nodeID <= this.correctNodeNum; nodeID++) {
+            this.nodes['' + nodeID] = new Node(
+                '' + nodeID,
+                this.nodeNum,
+                this.network, 
+                // register time event
+                (functionMeta, waitTime) => {
+                    this.eventQ.add({
+                        type: 'time-event',
+                        functionMeta: functionMeta,
+                        dst: '' + nodeID,
+                        time: this.clock + waitTime
+                    });
+                    console.log(`time event ${functionMeta.name} registered by node ${nodeID} at time ${this.clock + waitTime}`);                    
                 }
+            );
+            if (nodeID === this.correctNodeNum) {
+                this.network.addNodes(this.nodes);
             }
         }
+        // main loop
+        setInterval(() => {
+            if (this.eventQ.isEmpty()) return;
+            // pop events that should be processed
+            const timeEvents = [];
+            const msgEvents = [];
+            this.clock = this.eventQ.peek().time;
+            while (!this.eventQ.isEmpty() &&
+                this.eventQ.peek().time === this.clock) {
+                const event = this.eventQ.poll();
+                switch (event.type) {
+                    case 'msg-event':
+                        msgEvents.push(event);
+                        break;
+                    case 'time-event':
+                        timeEvents.push(event);
+                        break;
+                }
+            }
+            // send msg by msg event
+            msgEvents.forEach((event) => {
+                //console.log(event);
+                this.nodes[event.dst].triggerMsgEvent(event.packet.content);
+            });
+            // trigger time event
+            timeEvents.forEach((event) => {
+                //console.log(event);
+                this.nodes[event.dst].triggerTimeEvent(event.functionMeta);
+            });
+            console.log(`clock: ${this.clock}`);
+        }, this.tick);
     }
 
     constructor() {
@@ -105,6 +145,8 @@ class Simulator {
         };
         this.dashboard = new Dashboard(this.infos);
         // simulator
+        this.tick = 0;
+        this.clock = 0;
         this.simCount = 0;
         this.nodes = {};
         this.nodeNum = config.nodeNum;
@@ -112,13 +154,11 @@ class Simulator {
         this.correctNodeNum = this.nodeNum - this.byzantineNodeNum;
         // restart
         this.childKillSent = false;
+        this.eventQ = new FastPriorityQueue((eventA, eventB) => {
+            return eventA.time < eventB.time;
+        });
         // set up network
         this.network = new Network(
-            // on created
-            () => {
-                console.log('Network is created');
-                this.startSimulation();
-            },
             // send to system
             (msg) => {
                 this.infos[msg.sender] = msg.info;
@@ -128,8 +168,19 @@ class Simulator {
                 if (config.showDashboard) {
                     this.dashboard.update();
                 }
+            },
+            // register msg event
+            (packet, waitTime) => {
+                this.eventQ.add({
+                    type: 'msg-event',
+                    packet: packet,
+                    dst: packet.dst,
+                    time: this.clock + waitTime
+                });
+                console.log(`msg event registered by network module at time ${this.clock + waitTime}`);                
             }
         );
+        this.startSimulation();
     }
 };
 

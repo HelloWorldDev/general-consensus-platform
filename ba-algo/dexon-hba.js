@@ -48,7 +48,7 @@ class DEXONNode extends Node {
                 this.iter = iter;
                 // directly jump to step 4
                 this.step = 4;
-                clearTimeout(this.clock);
+                //clearTimeout(this.clock);
                 this.runBALogic();
             }
             return true;
@@ -70,7 +70,7 @@ class DEXONNode extends Node {
             });
             this.decidedValue = r.value;
             this.isDecided = true;
-            clearTimeout(this.clock);
+            //clearTimeout(this.clock);
             // immediately report to system when decide
             this.reportToSystem();
             return true;
@@ -82,7 +82,7 @@ class DEXONNode extends Node {
         if (this.commits[iter].length >= 2 * this.f + 1) {
             this.iter = iter + 1;
             this.step = 4;
-            clearTimeout(this.clock);
+            //clearTimeout(this.clock);
             this.runBALogic();
             return true;
         }
@@ -114,19 +114,27 @@ class DEXONNode extends Node {
                 this.precommits[0].push(precomMsg);
                 this.send(this.nodeID, 'broadcast', precomMsg);
                 this.step = 2;
+                this.registerTimeEvent(
+                    { name: 'runBALogic', params: { iter: this.iter, step: 3 } },
+                    3 * this.lambda * 1000);
+                /*
                 this.clock = setTimeout(() => {
                     // start standard BA
                     this.step = 3;
                     this.runBALogic();
-                }, 3 * this.lambda * 1000);
+                }, 3 * this.lambda * 1000);*/
             }
             else {
                 // not pioneer
                 this.step = 2;
+                this.registerTimeEvent(
+                    { name: 'runBALogic', params: { iter: this.iter, step: 3 } },
+                    3 * this.lambda * 1000);                
+                /*
                 this.clock = setTimeout(() => {
                     this.step = 3;
                     this.runBALogic();
-                }, 3 * this.lambda * 1000);
+                }, 3 * this.lambda * 1000);*/
             }
             break;
         }
@@ -146,10 +154,14 @@ class DEXONNode extends Node {
                 this.inits.push(initMsg);
                 this.send(this.nodeID, 'broadcast', initMsg);
                 // go to step 4 after 2l
+                this.registerTimeEvent(
+                    { name: 'runBALogic', params: { iter: this.iter, step: 4 } },
+                    2 * this.lambda * 1000);
+                /*
                 this.clock = this.clock = setTimeout(() => {
                     this.step = 4;
                     this.runBALogic();
-                }, 2 * this.lambda * 1000);
+                }, 2 * this.lambda * 1000);*/
             }
             break;
         }
@@ -169,10 +181,14 @@ class DEXONNode extends Node {
             this.precommits[this.iter].push(msg);
             this.send(this.nodeID, 'broadcast', msg);
             // go to step 5 after 2l
+            this.registerTimeEvent(
+                { name: 'runBALogic', params: { iter: this.iter, step: 5 } },
+                2 * this.lambda * 1000);
+            /*
             this.clock = setTimeout(() => {
                 this.step = 5;
                 this.runBALogic();
-            }, 2 * this.lambda * 1000);
+            }, 2 * this.lambda * 1000);*/
             break;
         }
         case 5: {
@@ -189,7 +205,7 @@ class DEXONNode extends Node {
         }
     }
 
-    receive(msg) {
+    triggerMsgEvent(msg) {
         this.logger.info(['recv', JSON.stringify(msg)]);
         // for testing
         /*
@@ -332,6 +348,12 @@ class DEXONNode extends Node {
         }
         this.reportToSystem();
     }
+    triggerTimeEvent(functionMeta) {
+        // prevent older events
+        if (functionMeta.params.iter < this.iter) return;
+        this.step = functionMeta.params.step;
+        this.runBALogic();
+    }
 
     reportToSystem() {
         const precommitsS = (this.precommits[this.round]) ? 
@@ -357,8 +379,8 @@ class DEXONNode extends Node {
         });
     }
 
-    constructor(nodeID, nodeNum) {
-        super(nodeID, nodeNum);
+    constructor(nodeID, nodeNum, network, registerTimeEvent) {
+        super(nodeID, nodeNum, network, registerTimeEvent);
         this.f = (this.nodeNum % 3 === 0) ? 
             this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);  
         // BA related
@@ -376,14 +398,11 @@ class DEXONNode extends Node {
             value: 'SKIP',
             iter: -1
         };
-        this.step = 1;
         this.lambda = config.lambda;
         this.v = uuid();
         this.y = '' + Math.floor(Math.random() * 100 + 1);
-        const targetStartTime = process.argv[4];
-        setTimeout(() => {
-            this.runBALogic();
-        }, targetStartTime - Date.now());
+        this.registerTimeEvent({ name: '', params: { iter: this.iter, step: 1 } }, 0);
     }
 }
-const n = new DEXONNode(process.argv[2], process.argv[3]);
+//const n = new DEXONNode(process.argv[2], process.argv[3]);
+module.exports = DEXONNode;
