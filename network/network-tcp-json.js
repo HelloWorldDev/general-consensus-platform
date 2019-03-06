@@ -15,8 +15,9 @@ class NetworkTCP {
             while (v === 0) v = Math.random();
             return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         }
-        //return mean;
-        return get01BM() * std + mean;
+        //const delay = get01BM() * std + mean;
+        const delay = mean;
+        return (delay < 0) ? 0 : delay;
     }
 
     transfer(packet) {
