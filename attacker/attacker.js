@@ -24,11 +24,14 @@ class Attacker {
             dst: dst,
             content: JSON.parse(JSON.stringify(msg))
 		};
-		this.network.transfer(packet);
+		this.transfer(packet);
     }
 
-    constructor(network) {
-        this.network = network;
+    triggerTimeEvent() {}
+
+    constructor(transfer, registerTimeEvent) {
+        this.transfer = transfer;
+        this.registerTimeEvent = registerTimeEvent;
         this.info = ['No attacker information.'];
         setInterval(() => {
             this.reportToSystem();

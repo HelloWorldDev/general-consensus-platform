@@ -86,15 +86,14 @@ class Network {
         }
     }
 
-    constructor(sendToSystem, registerMsgEvent) {
+    constructor(sendToSystem, registerMsgEvent, registerAttackerTimeEvent) {
         this.sendToSystem = sendToSystem;
         this.registerMsgEvent = registerMsgEvent;
         if (Attacker !== undefined) {
-            this.attacker = new Attacker({
-                transfer: (packet) => {
-                    this.transfer(packet);
-                }
-            });
+            this.attacker = new Attacker(
+                (packet) => this.transfer(packet),
+                registerAttackerTimeEvent
+            );
         }
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
