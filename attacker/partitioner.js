@@ -20,8 +20,8 @@ class Partitioner extends Attacker {
 
 	constructor(network) {
 		super(network);
-		this.partitionResolveTime = 10;
-		this.partitionDelay = 15;
+		this.partitionResolveTime = 20;
+		this.partitionDelay = 20;
 		this.isPartitionResolved = false;
 		this.delay = this.partitionDelay;
 
