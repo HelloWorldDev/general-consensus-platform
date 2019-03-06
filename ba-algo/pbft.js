@@ -388,9 +388,25 @@ class PBFTNode extends Node {
                 msg => this.send(this.nodeID, 'broadcast', msg)
             );
             break;
+        case 'skipToNextView':
+            this.skipToNextView();
+            break;
         default:
             console.log('undefined function name');
             process.exit(0);
+        }
+    }
+
+    // if the next primary is also dead
+    skipToNextView() {
+        if (this.view === this.oldView) {
+            this.logger.info(['skip to next view']);
+            const view = this.viewChangeMsg.v;
+            this.viewChangeMsg.v = view + 1;
+            this.extendVector(this.viewChange, view + 1);
+            this.viewChange[view + 1].push(this.viewChangeMsg);
+            this.send(this.nodeID, 'broadcast', this.viewChangeMsg);
+            this.registerTimeEvent({ name: 'skipToNextView' }, 3000);
         }
     }
 
@@ -415,7 +431,7 @@ class PBFTNode extends Node {
                             .filter(_msg => _msg.d === msg.d)
                 };
             });
-        const viewChangeMsg = {
+        this.viewChangeMsg = {
             type: 'view-change',
             v: this.view + 1,
             n: this.lastStableCheckpoint,
@@ -425,11 +441,12 @@ class PBFTNode extends Node {
                     .maxBy(pair => pair[1].length)[1],
             P: p,
             i: this.nodeID
-        }
+        };
         this.extendVector(this.viewChange, this.view + 1);
-        this.viewChange[this.view + 1].push(viewChangeMsg);
-        this.send(this.nodeID, 'broadcast', viewChangeMsg);
-        const oldView = this.view;
+        this.viewChange[this.view + 1].push(this.viewChangeMsg);
+        this.send(this.nodeID, 'broadcast', this.viewChangeMsg);
+        this.oldView = this.view;
+        /*
         // if the next primary is also dead
         const skipToNextView = () => {
             if (this.view === oldView) {
@@ -446,7 +463,8 @@ class PBFTNode extends Node {
         };
         setTimeout(() => {
             skipToNextView();
-        }, 3000);
+        }, 3000);*/
+        this.registerTimeEvent({ name: 'skipToNextView' }, 3000);        
     }
 
     issueRequest() {
