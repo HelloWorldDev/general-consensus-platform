@@ -6,6 +6,7 @@ const Attacker = require('./attacker');
 class Partitioner extends Attacker {
 
 	attack(packets) {
+		if (this.isPartitionResolved) return packets;
 		packets.forEach((packet) => {
 			if ((this.p1.includes(packet.src) &&
 				this.p2.includes(packet.dst)) ||
@@ -21,7 +22,7 @@ class Partitioner extends Attacker {
 		super(network);
 		this.partitionResolveTime = 10;
 		this.partitionDelay = 15;
-		this.normalDelay = config.networkDelay;
+		this.isPartitionResolved = false;
 		this.delay = this.partitionDelay;
 
 		const correctNodeNum = config.nodeNum - config.byzantineNodeNum;
@@ -40,7 +41,7 @@ class Partitioner extends Attacker {
 			` with delay ${this.partitionDelay}s`;
 		setTimeout(() => {
 			this.info[0] = 'Partition resolved!';
-			this.delay = this.normalDelay;
+			this.isPartitionResolved = true;
 		}, this.partitionResolveTime * 1000);
 	}
 }
