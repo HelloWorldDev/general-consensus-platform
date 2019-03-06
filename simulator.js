@@ -109,6 +109,7 @@ class Simulator {
             if (this.eventQ.isEmpty()) return;
             // pop events that should be processed
             const timeEvents = [];
+            const attackerTimeEvents = [];
             const msgEvents = [];
             this.clock = this.eventQ.peek().time;
             while (!this.eventQ.isEmpty() &&
@@ -121,8 +122,15 @@ class Simulator {
                     case 'time-event':
                         timeEvents.push(event);
                         break;
+                    case 'attacker-time-event':
+                        attackerTimeEvents.push(event);
                 }
             }
+            console.log(`clock: ${this.clock}`);            
+            // process attacker event
+            attackerTimeEvents.forEach((event) => {
+                this.network.attacker.triggerTimeEvent(event.functionMeta);
+            });
             // send msg by msg event
             msgEvents.forEach((event) => {
                 //console.log(event);
@@ -133,7 +141,6 @@ class Simulator {
                 //console.log(event);
                 this.nodes[event.dst].triggerTimeEvent(event.functionMeta);
             });
-            console.log(`clock: ${this.clock}`);
         }, this.tick);
     }
 
@@ -178,6 +185,15 @@ class Simulator {
                     time: this.clock + waitTime
                 });
                 console.log(`msg event registered by network module at time ${this.clock + waitTime}`);                
+            },
+            // register attacker time event
+            (functionMeta, waitTime) => {
+                this.eventQ.add({
+                    type: 'attacker-time-event',
+                    functionMeta: functionMeta,
+                    time: this.clock + waitTime
+                });
+                console.log(`time event ${functionMeta.name} registered by attacker at time ${this.clock + waitTime}`);                                    
             }
         );
         this.startSimulation();
