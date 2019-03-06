@@ -25,8 +25,8 @@ class Partitioner extends Attacker {
 
 	constructor(transfer, registerTimeEvent) {
 		super(transfer, registerTimeEvent);
-		this.partitionResolveTime = 10;
-		this.partitionDelay = 15;
+		this.partitionResolveTime = 20;
+		this.partitionDelay = 20;
 		this.isPrtitionResolved = false;
 		this.delay = this.partitionDelay;
 
