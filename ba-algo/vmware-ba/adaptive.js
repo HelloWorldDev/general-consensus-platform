@@ -174,7 +174,8 @@ class VMwareNode extends Node {
                     return -1;
                 }
                 else {
-                    return (msgA.proposeMsg.y < msgB.proposeMsg.y) ? 1 : -1;
+                    return (this.elect[msgA.sender] < this.elect[msgB.sender]) ?
+                        1 : -1;
                 }
             });
             const bestProposal = this.flPropose[0];
@@ -194,7 +195,7 @@ class VMwareNode extends Node {
                     k: this.k,
                     type: 'commit',
                     vLi: this.vLi,
-                    y: this.proposeMsg.y
+                    y: this.elect[this.proposeMsg.sender]
                 };
                 this.send(this.nodeID, 'broadcast', commitMsg);
                 this.send(this.nodeID, this.nodeID, commitMsg);
