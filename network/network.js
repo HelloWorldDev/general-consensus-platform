@@ -49,6 +49,9 @@ class Network {
                 packets.push(JSON.parse(JSON.stringify(packet)));
             }
         }
+        else {
+            packets.push(packet);
+        }
         // attacker attack function
         if (Attacker !== undefined &&
             packet.src !== 'system' && packet.dst !== 'system' &&
