@@ -239,7 +239,8 @@ class VMwareNode extends Node {
             this.prepare2.push(msg);
             break;
         case 'fl-propose':
-            this.flPropose.push(msg);
+            if (msg.proposeMsg.prepared.length >= this.f + 1)
+                this.flPropose.push(msg);
             break;
         case 'propose':
             this.propose.push(msg);
