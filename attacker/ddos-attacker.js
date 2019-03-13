@@ -18,8 +18,8 @@ class DDoSAttacker extends Attacker {
         return packets;
     }
 
-    constructor(network) {
-        super(network);
+    constructor(transfer, registerTimeEvent) {
+        super(transfer, registerTimeEvent);
         this.target = 1;
         this.info[0] = 'DDoS on node ' + this.target;
     }
