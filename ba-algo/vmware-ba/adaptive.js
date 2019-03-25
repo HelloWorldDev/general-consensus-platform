@@ -143,7 +143,7 @@ class VMwareNode extends Node {
                 sender: this.nodeID,
                 type: 'elect',
                 // VRF
-                y: Math.floor(Math.random() * 100 + 1)
+                y: Math.floor(Math.random() * 10000 + 1)
             };
             this.send(this.nodeID, 'broadcast', electMsg);
             this.send(this.nodeID, this.nodeID, electMsg);

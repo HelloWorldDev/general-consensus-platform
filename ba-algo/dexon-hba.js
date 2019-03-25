@@ -46,6 +46,7 @@ class DEXONNode extends Node {
             this.lock.iter = iter;
             if (iter > this.iter) {
                 this.iter = iter;
+                this.lambda = config.lambda * Math.pow(2, this.iter - 1); 
                 // directly jump to step 4
                 this.step = 4;
                 //clearTimeout(this.clock);
@@ -81,6 +82,7 @@ class DEXONNode extends Node {
     forwardIter(iter) {
         if (this.commits[iter].length >= 2 * this.f + 1) {
             this.iter = iter + 1;
+            this.lambda = config.lambda * Math.pow(2, this.iter - 1);
             this.step = 4;
             //clearTimeout(this.clock);
             this.runBALogic();
@@ -399,7 +401,7 @@ class DEXONNode extends Node {
         };
         this.lambda = config.lambda;
         this.v = uuid();
-        this.y = '' + Math.floor(Math.random() * 100 + 1);
+        this.y = '' + Math.floor(Math.random() * 10000 + 1);
         this.registerTimeEvent({ name: '', params: { iter: this.iter, step: 1 } }, 0);
     }
 }

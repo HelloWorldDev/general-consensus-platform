@@ -77,7 +77,7 @@ class VMwareNode extends Node {
                     type: 'propose',
                     vL: this.accepted.vi,
                     // VRF
-                    y: Math.floor(Math.random() * 100 + 1)
+                    y: Math.floor(Math.random() * 10000 + 1)
                 },
                 kL: this.accepted.ki,
                 CL: this.accepted.Ci
