@@ -50,6 +50,9 @@ class Simulator {
         console.log(this.infos.system[0]);
         // kill all child processes
         if (this.network.attacker.updateParam()) {
+            for (let nodeID in this.nodes) {
+                this.nodes[nodeID].destroy();
+            }
             this.nodes = {};
             this.network.removeNodes();
             this.infos = {
@@ -57,6 +60,10 @@ class Simulator {
             };
             this.dashboard.infos = this.infos;
             this.isAllDecided = false;
+            this.eventQ = new FastPriorityQueue((eventA, eventB) => {
+                return eventA.time < eventB.time;
+            });
+            this.clock = 0;
             this.startSimulation();
         }
         /*
@@ -97,7 +104,7 @@ class Simulator {
                         dst: '' + nodeID,
                         time: this.clock + waitTime
                     });
-                    console.log(`time event ${functionMeta.name} registered by node ${nodeID} at time ${this.clock + waitTime}`);                    
+                    //console.log(`time event ${functionMeta.name} registered by node ${nodeID} at time ${this.clock + waitTime}`);                    
                 }
             );
             if (nodeID === this.correctNodeNum) {
@@ -126,7 +133,7 @@ class Simulator {
                         attackerTimeEvents.push(event);
                 }
             }
-            console.log(`clock: ${this.clock}`);            
+            //console.log(`clock: ${this.clock}`);            
             // process attacker event
             attackerTimeEvents.forEach((event) => {
                 this.network.attacker.triggerTimeEvent(event.functionMeta);
@@ -184,7 +191,8 @@ class Simulator {
                     dst: packet.dst,
                     time: this.clock + waitTime
                 });
-                console.log(`msg event registered by network module at time ${this.clock + waitTime}`);                
+                //console.log(`msg event registered by network module at time ${this.clock + waitTime}`);
+                //console.log(packet.content);
             },
             // register attacker time event
             (functionMeta, waitTime) => {
@@ -193,7 +201,7 @@ class Simulator {
                     functionMeta: functionMeta,
                     time: this.clock + waitTime
                 });
-                console.log(`time event ${functionMeta.name} registered by attacker at time ${this.clock + waitTime}`);                                    
+                //console.log(`time event ${functionMeta.name} registered by attacker at time ${this.clock + waitTime}`);                                    
             }
         );
         this.startSimulation();

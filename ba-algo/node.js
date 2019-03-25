@@ -31,9 +31,13 @@ class Node {
         this.isCooling = false;
         this.network = network;
         this.registerTimeEvent = registerTimeEvent;
-        setInterval(() => {
+        this.reportTimer = setInterval(() => {
             this.reportToSystem();
         }, 1000);
+    }
+
+    destroy() {
+        clearInterval(this.reportTimer);
     }
 }
 module.exports = Node;

@@ -95,7 +95,6 @@ class DEXONNode extends Node {
         this.extendVectors(this.commits, this.iter, 'com');
         switch (this.step) {
         case 1: {
-            this.logger.warning(['debug', Date.now()]);
             if (this.nodeID === '' + this.pioneer) {
                 // pioneer
                 this.logger.info(['start as fast-mode leader']);

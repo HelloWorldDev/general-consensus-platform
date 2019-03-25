@@ -81,6 +81,7 @@ class Network {
     removeNodes() {
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
+        this.availableDst = [];
         this.init = true;
     }
     addNodes(nodes) {
