@@ -1,16 +1,10 @@
 'use strict';
 require('../lib/fp');
-const config = require('../config');
 
 class Attacker {
 
     updateParam() {
-        this.repeatTime++;
-        if (config.controlRepeat && 
-            this.repeatTime === config.repeatTime) {
-            return false;
-        }
-        return (config.controlRepeat) ? true : false;
+        return false;
     }
 
     attack(packets) {
@@ -39,7 +33,6 @@ class Attacker {
         this.transfer = transfer;
         this.registerTimeEvent = registerTimeEvent;
         this.info = ['No attacker information.'];
-        this.repeatTime = 0;
         setInterval(() => {
             this.reportToSystem();
         }, 1000);

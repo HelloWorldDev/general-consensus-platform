@@ -27,6 +27,7 @@ class Simulator {
             return;
         }
         this.isAllDecided = true;
+        this.repeatTime++;
         const finalStates = [];
         for (let nodeID in this.infos) {
             if (nodeID === 'system' || nodeID === 'attacker') {
@@ -43,7 +44,8 @@ class Simulator {
             (finalStates.every(state => state.decidedValue === finalStates[0].decidedValue));
         const maxRound = finalStates.map(state => state.round).max();
         const timeSpent = Date.now() - this.network.startTime;
-        this.infos.system[0] = `agreementPass: ${agreementPass}, ` + 
+        this.infos.system[0] = `test #${this.repeatTime}, ` +
+            `agreementPass: ${agreementPass}, ` + 
             `maxRound: ${maxRound}, ` + 
             `latency: ${this.clock} ms, ` +
             `totalMsgCount: ${this.network.totalMsgCount}, ` + 
@@ -54,7 +56,8 @@ class Simulator {
             msgBytes: this.network.totalMsgBytes
         });
         // kill all child processes
-        if (this.network.attacker.updateParam()) {
+        if (this.network.attacker.updateParam() || 
+            (this.repeatTime < config.repeatTime)) {
             for (let nodeID in this.nodes) {
                 this.nodes[nodeID].destroy();
             }
@@ -72,10 +75,11 @@ class Simulator {
             this.startSimulation();
         }
         else {
+            const p = (n, digit) => Math.round(n / digit);
             const l = this.simulationResults.map(result => result.latency);
             const m = this.simulationResults.map(result => result.msgBytes);
-            console.log(`latency: (${math.mean(l)}, ${math.std(l)})`);
-            console.log(`msgBytes: (${math.mean(m)}, ${math.std(m)})`);
+            console.log(`latency: (${p(math.mean(l), 1)}, ${p(math.std(l), 1)})`);
+            console.log(`msgBytes: (${p(math.mean(m), 1000)}, ${p(math.std(m), 1)})`);
         }
         /*
         if (!this.childKillSent) {
@@ -178,6 +182,7 @@ class Simulator {
         this.byzantineNodeNum = config.byzantineNodeNum;
         this.correctNodeNum = this.nodeNum - this.byzantineNodeNum;
         this.simulationResults = [];
+        this.repeatTime = 0;
         // restart
         this.childKillSent = false;
         this.eventQ = new FastPriorityQueue((eventA, eventB) => {
