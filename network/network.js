@@ -13,8 +13,7 @@ class Network {
             while (v === 0) v = Math.random();
             return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         }
-        //const delay = get01BM() * std + mean;
-        const delay = mean;
+        const delay = get01BM() * std + mean;
         return (delay < 0) ? 0 : delay;
     }
 

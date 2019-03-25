@@ -9,6 +9,7 @@ const Network = require('./network/network');
 const NetworkInterface = require('./lib/network-interface');
 const FastPriorityQueue = require('fastpriorityqueue');
 const Node = require(`./ba-algo/${config.BAType}.js`);
+const math = require('mathjs');
 
 class Simulator {
 
@@ -48,6 +49,10 @@ class Simulator {
             `totalMsgCount: ${this.network.totalMsgCount}, ` + 
             `totalMsgBytes: ${Math.round(this.network.totalMsgBytes / 1000)} kb`;
         console.log(this.infos.system[0]);
+        this.simulationResults.push({
+            latency: this.clock,
+            msgBytes: this.network.totalMsgBytes
+        });
         // kill all child processes
         if (this.network.attacker.updateParam()) {
             for (let nodeID in this.nodes) {
@@ -65,6 +70,12 @@ class Simulator {
             });
             this.clock = 0;
             this.startSimulation();
+        }
+        else {
+            const l = this.simulationResults.map(result => result.latency);
+            const m = this.simulationResults.map(result => result.msgBytes);
+            console.log(`latency: (${math.mean(l)}, ${math.std(l)})`);
+            console.log(`msgBytes: (${math.mean(m)}, ${math.std(m)})`);
         }
         /*
         if (!this.childKillSent) {
@@ -166,6 +177,7 @@ class Simulator {
         this.nodeNum = config.nodeNum;
         this.byzantineNodeNum = config.byzantineNodeNum;
         this.correctNodeNum = this.nodeNum - this.byzantineNodeNum;
+        this.simulationResults = [];
         // restart
         this.childKillSent = false;
         this.eventQ = new FastPriorityQueue((eventA, eventB) => {
