@@ -152,7 +152,6 @@ class VMwareNode extends Node {
             if (this.propose.some(msg => msg.vL !== this.vLi)) {
                 // leader has equivocated
                 // do not commit
-                console.log(this.propose);
                 this.logger.warning(['leader has equivocated']);
             }
             else {

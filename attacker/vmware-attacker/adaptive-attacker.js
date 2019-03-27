@@ -5,6 +5,11 @@ const Attacker = require('../attacker');
 
 class AdaptiveAttacker extends Attacker {
 
+    updateParam() {
+        this.byzantines = [];
+        return false;
+    }
+
     attack(packets) {
         const msg = packets[0].content;
         if (this.mode === 'vrf' && 
@@ -25,13 +30,13 @@ class AdaptiveAttacker extends Attacker {
                     }
                 });
                 const bestProposal = this.propose[0];
-                console.log(bestProposal);
+                //console.log(bestProposal);
                 // adapt leader
                 if (this.byzantines.has(bestProposal.sender)) {
-                    console.log('lucky VRF');
+                    //console.log('lucky VRF');
                 }
                 else if (this.byzantines.length < this.f) {
-                    console.log('adapting: ', bestProposal.sender);
+                    //console.log('adapting: ', bestProposal.sender);
                     this.byzantines.push(bestProposal.sender);
                 }
                 // send fork value
@@ -63,13 +68,13 @@ class AdaptiveAttacker extends Attacker {
                         return (msgA.y < msgB.y) ? 1 : -1;
                     });
                     const bestProposal = this.elect[0];
-                    console.log(bestProposal);
+                    //console.log(bestProposal);
                     // adapt leader
                     if (this.byzantines.has(bestProposal.sender)) {
-                        console.log('lucky VRF');
+                        //console.log('lucky VRF');
                     }
                     else if (this.byzantines.length < this.f) {
-                        console.log('adapting: ', bestProposal.sender);
+                        //console.log('adapting: ', bestProposal.sender);
                         this.byzantines.push(bestProposal.sender);
                     }
                     // useless to send fork value here
@@ -106,7 +111,7 @@ class AdaptiveAttacker extends Attacker {
         this.elect = [];
         this.flPropose = [];
         this.byzantines = [];
-        this.mode = 'adaptive';
+        this.mode = 'vrf';
     }
 }
 
