@@ -14,7 +14,7 @@ class VMwareNode extends Node {
     }
 
     decide(v) {
-        //clearTimeout(this.BALogicTimer);        
+        //clearTimeout(this.BALogicTimer);
         this.logger.info([`decide on ${v}`]);
         this.isDecided = true;
         this.decidedValue = v;

@@ -51,6 +51,7 @@ class Simulator {
             `totalMsgCount: ${this.network.totalMsgCount}, ` + 
             `totalMsgBytes: ${Math.round(this.network.totalMsgBytes / 1000)} kb`;
         console.log(this.infos.system[0]);
+        
         this.simulationResults.push({
             latency: this.clock,
             msgBytes: this.network.totalMsgBytes
@@ -163,6 +164,8 @@ class Simulator {
                 //console.log(event);
                 this.nodes[event.dst].triggerTimeEvent(event.functionMeta);
             });
+            // process all events at the same time and then judge
+            this.judge();
         }, this.tick);
     }
 
@@ -194,7 +197,7 @@ class Simulator {
             (msg) => {
                 this.infos[msg.sender] = msg.info;
                 if (msg.sender !== 'system' && msg.sender !== 'attacker') {
-                    this.judge();
+                    //this.judge();
                 }
                 if (config.showDashboard) {
                     this.dashboard.update();

@@ -16,6 +16,45 @@ class Network {
         const delay = get01BM() * std + mean;
         return (delay < 0) ? 0 : delay;
     }
+    
+    getJSONSize(json) {
+        let size = 0;
+        for (let key in json) {
+            size += key.length;
+            switch (typeof json[key]) {
+            case 'string':
+                // a terrible workaround to avoid nodeID size difference
+                // i is sender in PBFT
+                if (key === 'sender' || key === 'i') {
+                    size += 4;
+                }
+                else {
+                    size += json[key].length;
+                }
+                break;
+            case 'number':
+                size += 4;
+                break;
+            case 'object':
+                if (Array.isArray(json[key])) {
+                    // array of obj
+                    for (let obj of json[key]) {
+                        size += this.getJSONSize(obj);
+                    }
+                }
+                else {
+                    // normal json
+                    size += this.getJSONSize(json[key]);
+                }
+                break;
+            
+            default:
+                console.log('type not found:', typeof json[key]);
+                console.log(json[key]);
+            }
+        }
+        return size;
+    }
 
     transfer(packet) {
         if (packet.dst === 'system') {
@@ -62,7 +101,7 @@ class Network {
         }
         this.totalMsgCount += packets.length;
         this.totalMsgBytes += packets.reduce(
-            (sum, packet) => sum + JSON.stringify(packet.content).length, 0);
+            (sum, packet) => sum + this.getJSONSize(packet.content), 0);
         // send packets
         packets.forEach((packet) => {
             /*
