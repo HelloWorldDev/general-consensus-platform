@@ -23,9 +23,10 @@ class Network {
             size += key.length;
             switch (typeof json[key]) {
             case 'string':
-                // a terrible workaround to avoid nodeID size difference
+                // a terrible workaround to avoid size difference
                 // i is sender in PBFT
-                if (key === 'sender' || key === 'i') {
+                // y is VRF in DEXON HBA
+                if (key === 'sender' || key === 'i' || key === 'y') {
                     size += 4;
                 }
                 else {
