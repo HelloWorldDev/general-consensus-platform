@@ -111,7 +111,7 @@ class AdaptiveAttacker extends Attacker {
         this.elect = [];
         this.flPropose = [];
         this.byzantines = [];
-        this.mode = 'vrf';
+        this.mode = 'adaptive';
     }
 }
 

@@ -1,6 +1,6 @@
 module.exports = {
 	// node
-	nodeNum: 16,
+	nodeNum: 64,
 	byzantineNodeNum: 0,
 	// ba
 	useExternalBA: false,
@@ -14,13 +14,15 @@ module.exports = {
 	port: 36251,
 	networkDelay: {
 		mean: 0.25,
-		std: 0.1,
+		std: 0.05
 	},
 	startDelay: 0,
 	// simulator
 	showDashboard: false,
 	// attacker
-	attacker: 'attacker'
+	attacker: 'dexon-adaptive-attacker',
+	// repeat
+	repeatTime: 1
 };
 /* fast todo
 	2. cachin ba

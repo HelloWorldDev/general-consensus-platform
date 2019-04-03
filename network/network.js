@@ -74,8 +74,6 @@ class Network {
             return;
         }*/
         let packets = [];
-        packet.delay = 
-            this.getDelay(config.networkDelay.mean, config.networkDelay.std);
         // add delay according to config
         if (packet.dst === 'broadcast') {
             for (let nodeID of this.availableDst) {
@@ -89,6 +87,8 @@ class Network {
             }
         }
         else {
+            packet.delay = 
+                this.getDelay(config.networkDelay.mean, config.networkDelay.std);
             packets.push(packet);
         }
         // attacker attack function
