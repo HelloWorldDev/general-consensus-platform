@@ -113,6 +113,12 @@ class Network {
                 //console.log(Date.now() - packet.content.sendTime);
                 this.sockets[packet.dst].sendMessage(packet.content);
             }, waitTime));*/
+            if (this.msgCount[packet.content.type] === undefined) {
+                this.msgCount[packet.content.type] = 1;
+            }
+            else {
+                this.msgCount[packet.content.type]++;                
+            }
             this.registerMsgEvent(packet, packet.delay * 1000);
         });
     }
@@ -120,6 +126,7 @@ class Network {
     removeNodes() {
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
+        this.msgCount = {};
         this.availableDst = [];
         this.init = true;
     }
@@ -138,6 +145,7 @@ class Network {
                 registerAttackerTimeEvent
             );
         }
+        this.msgCount = {};
         this.totalMsgCount = 0;
         this.totalMsgBytes = 0;
         this.init = true;

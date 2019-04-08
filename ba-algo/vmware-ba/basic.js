@@ -42,7 +42,12 @@ class VMwareNode extends Node {
                 ki: this.accepted.ki,
                 Ci: this.accepted.Ci
             };
-            this.send(this.nodeID, this.leader, statusMsg);
+            if (this.nodeID === this.leader) {
+                this.status.push(statusMsg);
+            }
+            else {
+                this.send(this.nodeID, this.leader, statusMsg);
+            }
             this.registerTimeEvent(
                 { name: 'runBALogic', params: { round: 2 } },
                 2 * config.lambda * 1000
@@ -81,7 +86,10 @@ class VMwareNode extends Node {
                     CL: this.accepted.Ci
                 };
                 this.send(this.nodeID, 'broadcast', proposeMsg);
-                this.send(this.nodeID, this.nodeID, proposeMsg);
+                this.proposeMsg = proposeMsg.proposeMsg;
+                this.vLi = this.proposeMsg.vL;
+                this.propose.push(this.proposeMsg);
+                //this.send(this.nodeID, this.nodeID, proposeMsg);
                 this.status = [];
             }
             this.registerTimeEvent(
@@ -105,7 +113,8 @@ class VMwareNode extends Node {
                     vLi: this.vLi
                 };
                 this.send(this.nodeID, 'broadcast', commitMsg);
-                this.send(this.nodeID, this.nodeID, commitMsg);
+                this.commit.push(commitMsg);
+                //this.send(this.nodeID, this.nodeID, commitMsg);
             }
             this.registerTimeEvent(
                 { name: 'runBALogic', params: { round: 4 } },
@@ -140,7 +149,10 @@ class VMwareNode extends Node {
                         Ci: proof
                     };
                     this.send(this.nodeID, 'broadcast', notifyMsg);
-                    this.send(this.nodeID, this.nodeID, notifyMsg);
+                    const k = notifyMsg.Ci[0].k;
+                    this.extendVector(this.notify, k);
+                    this.notify[k].push(notifyMsg);
+                    //this.send(this.nodeID, this.nodeID, notifyMsg);
                 }
             }
             this.propose = [];
@@ -253,7 +265,12 @@ class VMwareNode extends Node {
                 ki: this.accepted.ki,
                 Ci: this.accepted.Ci
             };
-            this.send(this.nodeID, this.leader, initStatusMsg);
+            if (this.nodeID === this.leader) {
+                this.status.push(initStatusMsg);
+            }
+            else {
+                this.send(this.nodeID, this.leader, initStatusMsg);
+            }
             this.registerTimeEvent(
                 { name: 'runBALogic', params: { round: 2 } }, 
                 2 * config.lambda * 1000

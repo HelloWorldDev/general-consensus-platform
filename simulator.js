@@ -42,6 +42,7 @@ class Simulator {
         }
         const agreementPass = (finalStates.length === this.correctNodeNum) &&
             (finalStates.every(state => state.decidedValue === finalStates[0].decidedValue));
+        if (!agreementPass) process.exit(0);
         const maxRound = finalStates.map(state => state.round).max();
         const timeSpent = Date.now() - this.network.startTime;
         this.infos.system[0] = `test #${this.repeatTime}, ` +
@@ -51,10 +52,12 @@ class Simulator {
             `totalMsgCount: ${this.network.totalMsgCount}, ` + 
             `totalMsgBytes: ${Math.round(this.network.totalMsgBytes / 1000)} kb`;
         console.log(this.infos.system[0]);
+        console.log(this.network.msgCount);
         
         this.simulationResults.push({
             latency: this.clock,
-            msgBytes: this.network.totalMsgBytes
+            msgBytes: this.network.totalMsgBytes,
+            msgCount: this.network.msgCount
         });
         // kill all child processes
         if (this.network.attacker.updateParam() || 
@@ -81,6 +84,23 @@ class Simulator {
             const m = this.simulationResults.map(result => result.msgBytes);
             console.log(`latency: (${p(math.mean(l), 1)}, ${p(math.std(l), 1)})`);
             console.log(`msgBytes: (${p(math.mean(m), 1000)}, ${p(math.std(m), 1)})`);
+            const msgTypes = [];
+            this.simulationResults.forEach(result => {
+                for (const key in result.msgCount) {
+                    if (!msgTypes.has(key)) msgTypes.push(key);
+                }
+            });
+            msgTypes.forEach(type => process.stdout.write(type + ',,'));
+            console.log();
+            msgTypes.forEach(type => {
+                const msgCounts = [];
+                this.simulationResults.forEach(result => {
+                    if (result.msgCount[type] === undefined) msgCounts.push(0);
+                    else msgCounts.push(result.msgCount[type]);
+                });
+                //console.log(`${type} ${math.mean(msgCounts)} ${math.std(msgCounts)}`);
+                process.stdout.write(`${math.mean(msgCounts)},${math.std(msgCounts)},`);
+            });
         }
         /*
         if (!this.childKillSent) {
