@@ -132,12 +132,13 @@ class VMwareNode extends Node {
                 // do not commit
             }
             else {
-                const C = this.commit.filter(msg => msg.vLi === this.vLi);
-                if (C.length >= this.f + 1) {
+                const C = this.commit.filter(
+                    msg => msg.vLi === this.vLi && msg.k === this.k);
+                if (C.length >= this.nodeNum - this.f) {
                     this.accepted.vi = this.vLi;
                     this.accepted.Ci = C;
                     const proof = 
-                        JSON.parse(JSON.stringify(C)).splice(0, this.f + 1);
+                        JSON.parse(JSON.stringify(C)).splice(0, this.nodeNum - this.f);
                     const notifyMsg = {
                         sender: this.nodeID,
                         type: 'notify',
@@ -285,8 +286,8 @@ class VMwareNode extends Node {
     constructor(nodeID, nodeNum, network, registerTimeEvent) {
         super(nodeID, nodeNum, network, registerTimeEvent);
         //this.isCooling = false;
-        this.f = (this.nodeNum % 3 === 0) ?
-            this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);
+        this.f = (this.nodeNum % 2 === 0) ?
+            this.nodeNum / 2 - 1 : (this.nodeNum - 1) / 2;
         
         // BA related
         // store all accepted

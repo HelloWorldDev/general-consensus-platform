@@ -286,14 +286,15 @@ class DEXONNode extends Node {
             break;
         }
         case 'decide': {
-            this.extendVectors(this.commits, msg.iter, 'com');
+            const proofIter = msg.commits[0].iter;
+            this.extendVectors(this.commits, proofIter, 'com');
             msg.commits.forEach(comMsg => {
-                if (!this.commits[msg.iter]
+                if (!this.commits[proofIter]
                     .some(myComMsg => myComMsg.sender === comMsg.sender)) {
-                    this.commits[msg.iter].push(comMsg);
+                    this.commits[proofIter].push(comMsg);
                 }
             });
-            this.decide(msg.iter);
+            this.decide(proofIter);
             break;
         }
 /*

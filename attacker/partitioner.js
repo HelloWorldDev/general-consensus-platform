@@ -5,6 +5,11 @@ const Attacker = require('./attacker');
 // create a partition between f and f + 1 non-Byzantine nodes
 class Partitioner extends Attacker {
 
+	update() {
+		this.isPartitionResolved = false;
+		return false;
+	}
+
 	getDelay(mean, std) {
 		function get01BM() {
 			let u = 0, v = 0;
@@ -17,8 +22,8 @@ class Partitioner extends Attacker {
 	}
 
 	attack(packets) {
-		
-		if (this.isPrtitionResolved) return packets;	
+		console.log(this.isPartitionResolved);
+		if (this.isPartitionResolved) return packets;	
 		packets.forEach((packet) => {
 			if ((this.p1.includes(packet.src) &&
 				this.p2.includes(packet.dst)) ||
@@ -42,7 +47,7 @@ class Partitioner extends Attacker {
 		super(transfer, registerTimeEvent);
 		this.partitionResolveTime = 60;
 		this.partitionDelay = { mean: 4, std: 1 };
-		this.isPrtitionResolved = false;
+		this.isPartitionResolved = false;
 
 		const correctNodeNum = config.nodeNum - config.byzantineNodeNum;
 		const boundary = Math.floor(correctNodeNum / 2);
