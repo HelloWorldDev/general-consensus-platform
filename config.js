@@ -6,21 +6,21 @@ module.exports = {
 	useExternalBA: false,
 	// ba specific param
 	lambda: 1,
-	BAType: 'vmware-ba/adaptive',
+	BAType: 'pbft',
 	configPath: '/Users/nicky/general-consensus-platform/tendermint/mytestnet/node',
 	// network env
 	networkType: 'tcp-json',
 	host: 'localhost',
 	port: 36251,
 	networkDelay: {
-		mean: 1,
-		std: 0.3
+		mean: 0.25,
+		std: 0.05
 	},
 	startDelay: 0,
 	// simulator
 	showDashboard: false,
 	// attacker
-	attacker: 'attacker',
+	attacker: 'partitioner',
 	// repeat
 	repeatTime: 100
 };

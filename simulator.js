@@ -79,7 +79,10 @@ class Simulator {
             this.startSimulation();
         }
         else {
-            const p = (n, digit) => Math.round(n / digit);
+            const p = (n, digit) => {
+                digit = digit || 1;
+                return Math.round(n / digit);
+            };
             const l = this.simulationResults.map(result => result.latency);
             const m = this.simulationResults.map(result => result.msgBytes);
             console.log(`latency: (${p(math.mean(l), 1)}, ${p(math.std(l), 1)})`);
@@ -99,7 +102,7 @@ class Simulator {
                     else msgCounts.push(result.msgCount[type]);
                 });
                 //console.log(`${type} ${math.mean(msgCounts)} ${math.std(msgCounts)}`);
-                process.stdout.write(`${math.mean(msgCounts)},${math.std(msgCounts)},`);
+                process.stdout.write(`${p(math.mean(msgCounts))},${p(math.std(msgCounts))},`);
             });
         }
         /*

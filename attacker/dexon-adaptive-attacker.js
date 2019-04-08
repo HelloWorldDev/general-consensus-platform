@@ -1,5 +1,5 @@
 'use strict';
-// implement adaptive attack for DEXON HBA
+// implement strongly-adaptive attack for DEXON HBA
 const config = require('../config');
 const Attacker = require('./attacker');
 

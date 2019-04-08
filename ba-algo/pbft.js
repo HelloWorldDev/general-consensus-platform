@@ -502,10 +502,12 @@ class PBFTNode extends Node {
             this.send(this.nodeID, 'broadcast', prepareMsg);
             this.seq++;
         //}, this.proposePeriod * 1000);
+        // do not repeat to issue request
+        /*
         this.registerTimeEvent(
             { name: 'issueRequest' }, 
             this.proposePeriod * 1000
-        );
+        );*/
         // stop proposing after 10 sec
         /*
         setTimeout(() => {
