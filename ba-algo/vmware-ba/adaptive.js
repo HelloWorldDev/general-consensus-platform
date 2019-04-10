@@ -115,26 +115,25 @@ class VMwareNode extends Node {
             break;
         case 4:
             // end of prepare2 and start of propose
-            if (this.prepare2.length < this.nodeNum - this.f) {
-                return;
-            }
-            const proposeMsg = {
-                sender: this.nodeID,
-                type: 'fl-propose',
-                proposeMsg: {
+            if (this.prepare2.length >= this.nodeNum - this.f) {
+                const proposeMsg = {
                     sender: this.nodeID,
-                    k: this.k,
-                    type: 'propose',
-                    vL: this.accepted.vi,
-                    prepared: this.prepare2.splice(0, this.nodeNum - this.f)
-                },
-                kL: this.accepted.ki,
-                CL: this.accepted.Ci
-            };
-            this.send(this.nodeID, 'broadcast', proposeMsg);
-            this.flPropose.push(proposeMsg);
-            //this.send(this.nodeID, this.nodeID, proposeMsg);
-            this.prepare2 = [];
+                    type: 'fl-propose',
+                    proposeMsg: {
+                        sender: this.nodeID,
+                        k: this.k,
+                        type: 'propose',
+                        vL: this.accepted.vi,
+                        prepared: this.prepare2.splice(0, this.nodeNum - this.f)
+                    },
+                    kL: this.accepted.ki,
+                    CL: this.accepted.Ci
+                };
+                this.send(this.nodeID, 'broadcast', proposeMsg);
+                this.flPropose.push(proposeMsg);
+                //this.send(this.nodeID, this.nodeID, proposeMsg);
+            }
+            this.prepare2 = [];            
             this.registerTimeEvent(
                 { name: 'runBALogic', params: { round: 5 } },
                 2 * config.lambda * 1000
@@ -222,7 +221,8 @@ class VMwareNode extends Node {
             break;
         case 7:
             // end of commit and start of notify
-            if (this.propose.some(msg => msg.vL !== this.vLi)) {
+            if (this.propose.some(msg => 
+                msg.k === this.k && msg.vL !== this.vLi)) {
                 // leader has equivocated
                 // do not commit
                 this.logger.warning(['leader has equivocated']);
@@ -272,7 +272,7 @@ class VMwareNode extends Node {
 
     triggerMsgEvent(msgEvent) {
         const msg = msgEvent.packet.content;
-        this.logger.info(['recv', msgEvent.triggeredTime, JSON.stringify(msg)]);
+        this.logger.info(['recv', this.logger.round(msgEvent.triggeredTime), JSON.stringify(msg)]);
         if (this.isDecided) {
             return;
         }

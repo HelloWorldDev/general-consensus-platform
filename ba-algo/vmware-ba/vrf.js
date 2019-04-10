@@ -145,7 +145,8 @@ class VMwareNode extends Node {
             break;
         case 4:
             // end of commit and start of notify
-            if (this.propose.some(msg => msg.vL !== this.vLi)) {
+            if (this.propose.some(msg => 
+                msg.k === this.k && msg.vL !== this.vLi)) {
                 // leader has equivocated
                 // do not commit
                 this.logger.warning(['leader has equivocated']);
@@ -194,7 +195,7 @@ class VMwareNode extends Node {
 
     triggerMsgEvent(msgEvent) {
         const msg = msgEvent.packet.content;        
-        this.logger.info(['recv', msgEvent.triggeredTime, JSON.stringify(msg)]);
+        this.logger.info(['recv', this.logger.round(msgEvent.triggeredTime), JSON.stringify(msg)]);
         if (this.isDecided) {
             return;
         }

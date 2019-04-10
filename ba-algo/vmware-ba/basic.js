@@ -32,6 +32,9 @@ class VMwareNode extends Node {
                 this.accepted.Ci = msg.Ci;
                 this.accepted.ki = this.k;
             };
+            this.status = [];
+            this.propose = [];
+            this.commit = [];
             this.k++;
             this.leader = '' + (this.k % this.nodeNum + 1);
             const statusMsg = {
@@ -127,8 +130,10 @@ class VMwareNode extends Node {
             break;
         case 4:
             // end of commit and start of notify
-            if (this.propose.some(msg => msg.vL !== this.vLi)) {
+            if (this.propose.some(msg => 
+                    msg.k === this.k && msg.vL !== this.vLi)) {
                 // leader has equivocated
+                this.logger.info(['leader has equivocated, or vLi is undefined']);
                 // do not commit
             }
             else {
@@ -176,13 +181,13 @@ class VMwareNode extends Node {
 
     triggerMsgEvent(msgEvent) {
         const msg = msgEvent.packet.content;        
-        this.logger.info(['recv', msgEvent.triggeredTime, JSON.stringify(msg)]);
+        this.logger.info(['recv', this.logger.round(msgEvent.triggeredTime), JSON.stringify(msg)]);
         if (this.isDecided) {
             return;
         }
         switch(msg.type) {
         case 'status':
-            if (this.leader === this.nodeID) {
+            if (this.leader === this.nodeID && msg.k === this.k) {
                 // verify msg.Ci
                 this.status.push(msg);
             }
@@ -200,9 +205,11 @@ class VMwareNode extends Node {
             }
             break;
         case 'propose':
+            if (msg.k !== this.k) return;
             this.propose.push(msg);
             break;
         case 'commit':
+            if (msg.k !== this.k) return;
             this.commit.push(msg);
             break;
         case 'notify':

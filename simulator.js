@@ -60,6 +60,11 @@ class Simulator {
             msgCount: this.network.msgCount
         });
         // kill all child processes
+        // attacker update param may register events
+        this.eventQ = new FastPriorityQueue((eventA, eventB) => {
+            return eventA.triggeredTime < eventB.triggeredTime;
+        });
+        this.clock = 0;
         if (this.network.attacker.updateParam() || 
             (this.repeatTime < config.repeatTime)) {
             for (let nodeID in this.nodes) {
@@ -72,10 +77,7 @@ class Simulator {
             };
             this.dashboard.infos = this.infos;
             this.isAllDecided = false;
-            this.eventQ = new FastPriorityQueue((eventA, eventB) => {
-                return eventA.triggeredTime < eventB.triggeredTime;
-            });
-            this.clock = 0;
+            
             this.startSimulation();
         }
         else {
@@ -104,6 +106,7 @@ class Simulator {
                 //console.log(`${type} ${math.mean(msgCounts)} ${math.std(msgCounts)}`);
                 process.stdout.write(`${p(math.mean(msgCounts))},${p(math.std(msgCounts))},`);
             });
+            process.stdout.write(`${p(math.mean(l))}, ${p(math.std(l))}`);
         }
         /*
         if (!this.childKillSent) {

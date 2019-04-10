@@ -1,12 +1,12 @@
 module.exports = {
 	// node
-	nodeNum: 16,
+	nodeNum: 64,
 	byzantineNodeNum: 0,
 	// ba
 	useExternalBA: false,
 	// ba specific param
 	lambda: 1,
-	BAType: 'pbft',
+	BAType: 'vmware-ba/basic',
 	configPath: '/Users/nicky/general-consensus-platform/tendermint/mytestnet/node',
 	// network env
 	networkType: 'tcp-json',
@@ -22,7 +22,7 @@ module.exports = {
 	// attacker
 	attacker: 'partitioner',
 	// repeat
-	repeatTime: 1
+	repeatTime: 100
 };
 /* fast todo
 	2. cachin ba

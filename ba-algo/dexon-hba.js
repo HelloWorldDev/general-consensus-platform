@@ -210,7 +210,7 @@ class DEXONNode extends Node {
 
     triggerMsgEvent(msgEvent) {
         const msg = msgEvent.packet.content;        
-        this.logger.info(['recv', msgEvent.triggeredTime, JSON.stringify(msg)]);
+        this.logger.info(['recv', this.logger.round(msgEvent.triggeredTime), JSON.stringify(msg)]);
         // for testing
         /*
         if (this.localClock > msg.sendTime + msg.delay) {

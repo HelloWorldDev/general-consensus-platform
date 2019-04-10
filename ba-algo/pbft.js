@@ -82,6 +82,7 @@ class PBFTNode extends Node {
                         this.startViewChange();
                     }
                 }, this.receiveTimeout * 1000);*/
+                if (msg === undefined) process.exit(0);
                 this.prePrepare[msg.v][msg.n].push(msg);
                 if (this.digest[msg.d] === undefined) {
                     this.digest[msg.d] = {
@@ -208,15 +209,17 @@ class PBFTNode extends Node {
                 this.isPrimary = true;
                 this.isInViewChange = false;
                 this.view = msg.v;
-                const minS = this.viewChange[msg.v]
+                let minS = this.viewChange[msg.v]
                     .map(msg => msg.n)
                     .max();
+                //minS = minS < 0 ? 0 : minS;
                 const allPrePrepare = this.viewChange[msg.v]
                     .map(msg => msg.P)
                     .map(P => P.map(Pm => Pm['pre-prepare']))
                     .flat();
-                const maxS = (allPrePrepare.length === 0) ?
+                let maxS = (allPrePrepare.length === 0) ?
                     minS : allPrePrepare.map(msg => msg.n).max();
+                //maxS = maxS < 0 ? 0 : maxS;
                 const O = [];
                 this.newViewPrepareMsgs = [];
                 for (let n = minS + 1; n <= maxS; n++) {
@@ -235,6 +238,7 @@ class PBFTNode extends Node {
                         d: d
                     };
                     this.extendVector2D(this.prePrepare, msg.v, n);
+                    if (prePrepareMsg === undefined) process.exit(0);
                     this.prePrepare[msg.v][n].push(prePrepareMsg);
                     const prepareMsg = {
                         type: 'prepare',
@@ -302,6 +306,7 @@ class PBFTNode extends Node {
                 // pre-prepare[v][n] should only have one message
                 if (this.prePrepare[msg.v][msg.n].length === 0) {
                     // re-consensus d
+                    if (msg === undefined) process.exit(0);
                     this.prePrepare[msg.v][msg.n].push(msg);
                     this.digest[msg.d] = {
                         isReceived: true,
@@ -334,6 +339,8 @@ class PBFTNode extends Node {
                     this.send(this.nodeID, 'broadcast', prepareMsg);
                 }
                 else {
+                    console.log('1', this.prePrepare[msg.v][msg.n][0]);
+                    console.log('2', this.prePrepare[msg.v][msg.n][1]);
                     this.logger.warning(['view change pre-prepare conflict']);
                 }
             });
@@ -439,7 +446,7 @@ class PBFTNode extends Node {
             type: 'view-change',
             v: this.view + 1,
             n: this.lastStableCheckpoint,
-            C: (this.lastStableCheckpoint < 0) ? [] :
+            C: (this.lastStableCheckpoint <= 0) ? [] :
                 this.checkpoint[this.lastStableCheckpoint]
                     .groupBy(msg => msg.d)
                     .maxBy(pair => pair[1].length)[1],
@@ -491,6 +498,7 @@ class PBFTNode extends Node {
                 d: request
             };
             this.extendVector2D(this.prePrepare, this.view, this.seq);
+            if (prePrepareMsg === undefined) process.exit(0);
             this.prePrepare[this.view][this.seq].push(prePrepareMsg);
             this.send(this.nodeID, 'broadcast', prePrepareMsg);
             
@@ -566,10 +574,10 @@ class PBFTNode extends Node {
             this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);
         // pbft
         this.view = 0;
-        this.seq = 0;
         this.isPrimary =
             (this.view % this.nodeNum) === (parseInt(this.nodeID) - 1);
         this.checkpointPeriod = 3;
+        this.seq = 0;
         this.isInViewChange = false;
         this.proposePeriod = 2;
         this.lastDecidedSeq = -1;
@@ -581,7 +589,7 @@ class PBFTNode extends Node {
         this.hasReceiveRequest = false;
         this.executeTimeout = 8;
         // this makes nodes create checkpoint at n = 0
-        this.lastStableCheckpoint = -this.checkpointPeriod;
+        this.lastStableCheckpoint = 0;
         // log
         this.digest = {};
         this.prePrepare = [];

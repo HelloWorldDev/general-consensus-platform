@@ -5,8 +5,12 @@ const Attacker = require('./attacker');
 // create a partition between f and f + 1 non-Byzantine nodes
 class Partitioner extends Attacker {
 
-	update() {
+	updateParam() {
 		this.isPartitionResolved = false;
+		this.registerTimeEvent(
+			{ name: 'resolvePartition' }, 
+			this.partitionResolveTime * 1000
+		);
 		return false;
 	}
 
@@ -21,14 +25,18 @@ class Partitioner extends Attacker {
 		return (delay < 0) ? 0 : delay;
 	}
 
+	getPartition(nodeID) {
+		if (this.p1.has(nodeID)) return '1';
+		else if (this.p2.has(nodeID)) return '2';
+		else return '3';
+	}
+
 	attack(packets) {
-		//console.log(this.isPartitionResolved);
 		if (this.isPartitionResolved) return packets;	
 		packets.forEach((packet) => {
-			if ((this.p1.includes(packet.src) &&
-				this.p2.includes(packet.dst)) ||
-				(this.p2.includes(packet.src) &&
-				this.p1.includes(packet.dst))) {
+			const srcPartition = this.getPartition(packet.src);
+			const dstPartition = this.getPartition(packet.dst);
+			if (srcPartition !== dstPartition) {
 				packet.delay = this.getDelay(
 					this.partitionDelay.mean, 
 					this.partitionDelay.std
@@ -40,25 +48,30 @@ class Partitioner extends Attacker {
 
 	triggerTimeEvent(timeEvent) {
 		this.info[0] = 'Partition resolved!';
-		this.isPrtitionResolved = true;
+		this.isPartitionResolved = true;
 	}
 
 	constructor(transfer, registerTimeEvent) {
 		super(transfer, registerTimeEvent);
-		this.partitionResolveTime = 30;
+		this.partitionResolveTime = 60;
 		this.partitionDelay = { mean: 4, std: 1 };
 		this.isPartitionResolved = false;
 
 		const correctNodeNum = config.nodeNum - config.byzantineNodeNum;
-		const boundary = Math.floor(correctNodeNum / 2);
+		const boundary = Math.floor(correctNodeNum / 3);
+		const boundary2 = 2 * Math.floor(correctNodeNum / 3);
 		this.p1 = [];
 		this.p2 = [];
+		this.p3 = [];
 		for (let nodeID = 1; nodeID <= correctNodeNum; nodeID++) {
 			if (nodeID <= boundary) {
 				this.p1.push('' + nodeID);
 			}
-			else {
+			else if (nodeID <= boundary2) {
 				this.p2.push('' + nodeID);
+			}
+			else {
+				this.p3.push('' + nodeID);
 			}
 		}
 		this.info[0] = `Partitioning boundary ${boundary}` +
