@@ -5,9 +5,9 @@ require('../lib/fp');
 class Node {
     reportToSystem() {}
 
-    triggerMsgEvent(msg) {}
+    triggerMsgEvent(msgEvent) {}
 
-    triggerTimeEvent(functionMeta) {}
+    triggerTimeEvent(timeEvent) {}
 
     send(src, dst, msg) {
         if (this.isCooling) {

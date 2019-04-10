@@ -27,7 +27,9 @@ class Attacker {
 		this.transfer(packet);
     }
 
-    triggerTimeEvent() {}
+    triggerTimeEvent(timeEvent) {}
+
+    triggerMsgEvent(msgEvent) {}
 
     constructor(transfer, registerTimeEvent) {
         this.transfer = transfer;

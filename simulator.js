@@ -73,7 +73,7 @@ class Simulator {
             this.dashboard.infos = this.infos;
             this.isAllDecided = false;
             this.eventQ = new FastPriorityQueue((eventA, eventB) => {
-                return eventA.time < eventB.time;
+                return eventA.triggeredTime < eventB.triggeredTime;
             });
             this.clock = 0;
             this.startSimulation();
@@ -141,7 +141,8 @@ class Simulator {
                         type: 'time-event',
                         functionMeta: functionMeta,
                         dst: '' + nodeID,
-                        time: this.clock + waitTime
+                        registeredTime: this.clock,
+                        triggeredTime: this.clock + waitTime
                     });
                     //console.log(`time event ${functionMeta.name} registered by node ${nodeID} at time ${this.clock + waitTime}`);                    
                 }
@@ -157,9 +158,9 @@ class Simulator {
             const timeEvents = [];
             const attackerTimeEvents = [];
             const msgEvents = [];
-            this.clock = this.eventQ.peek().time;
+            this.clock = this.eventQ.peek().triggeredTime;
             while (!this.eventQ.isEmpty() &&
-                this.eventQ.peek().time === this.clock) {
+                this.eventQ.peek().triggeredTime === this.clock) {
                 const event = this.eventQ.poll();
                 switch (event.type) {
                     case 'msg-event':
@@ -175,17 +176,19 @@ class Simulator {
             //console.log(`clock: ${this.clock}`);            
             // process attacker event
             attackerTimeEvents.forEach((event) => {
-                this.network.attacker.triggerTimeEvent(event.functionMeta);
+                this.network.attacker.triggerTimeEvent(event);
             });
             // send msg by msg event
             msgEvents.forEach((event) => {
                 //console.log(event);
-                this.nodes[event.dst].triggerMsgEvent(event.packet.content);
+                this.nodes[event.dst].triggerMsgEvent(event);                
+                //this.nodes[event.dst].triggerMsgEvent(event.packet.content);
             });
             // trigger time event
             timeEvents.forEach((event) => {
                 //console.log(event);
-                this.nodes[event.dst].triggerTimeEvent(event.functionMeta);
+                this.nodes[event.dst].triggerTimeEvent(event);
+                //this.nodes[event.dst].triggerTimeEvent(event.functionMeta);
             });
             // process all events at the same time and then judge
             this.judge();
@@ -212,7 +215,7 @@ class Simulator {
         // restart
         this.childKillSent = false;
         this.eventQ = new FastPriorityQueue((eventA, eventB) => {
-            return eventA.time < eventB.time;
+            return eventA.triggeredTime < eventB.triggeredTime;
         });
         // set up network
         this.network = new Network(
@@ -232,9 +235,10 @@ class Simulator {
                     type: 'msg-event',
                     packet: packet,
                     dst: packet.dst,
-                    time: this.clock + waitTime
+                    registeredTime: this.clock,
+                    triggeredTime: this.clock + waitTime
                 });
-                //console.log(`msg event registered by network module at time ${this.clock + waitTime}`);
+                //console.log(`msg event ${packet.content.type} registered by network module at time ${this.clock + waitTime}`);
                 //console.log(packet.content);
             },
             // register attacker time event
@@ -242,7 +246,8 @@ class Simulator {
                 this.eventQ.add({
                     type: 'attacker-time-event',
                     functionMeta: functionMeta,
-                    time: this.clock + waitTime
+                    registeredTime: this.clock,
+                    triggeredTime: this.clock + waitTime
                 });
                 //console.log(`time event ${functionMeta.name} registered by attacker at time ${this.clock + waitTime}`);                                    
             }

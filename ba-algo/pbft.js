@@ -52,8 +52,11 @@ class PBFTNode extends Node {
         return (count >= 2 * this.f + 1);
     }
 
-    triggerMsgEvent(msg) {
-        this.logger.info(['recv', JSON.stringify(msg)]);
+    triggerMsgEvent(msgEvent) {
+        const msg = msgEvent.packet.content;
+        this.logger.info(['recv', 
+            this.logger.round(msgEvent.triggeredTime),
+            JSON.stringify(msg)]);
         if (this.isInViewChange &&
             (msg.type !== 'checkpoint' &&
             msg.type !== 'view-change' &&
@@ -112,7 +115,7 @@ class PBFTNode extends Node {
                 this.send(this.nodeID, 'broadcast', prepareMsg);
             }
             else {
-                this.logger.warning(['pre-prepare conflict']);
+                this.logger.warning(['normal pre-prepare conflict']);
             }
         }
         else if (msg.type === 'prepare') {
@@ -331,7 +334,7 @@ class PBFTNode extends Node {
                     this.send(this.nodeID, 'broadcast', prepareMsg);
                 }
                 else {
-                    this.logger.warning(['pre-prepare conflict']);
+                    this.logger.warning(['view change pre-prepare conflict']);
                 }
             });
             this.hasReceiveRequest = false;
@@ -353,7 +356,8 @@ class PBFTNode extends Node {
         }
     }
 
-    triggerTimeEvent(functionMeta) {
+    triggerTimeEvent(timeEvent) {
+        const functionMeta = timeEvent.functionMeta;
         switch (functionMeta.name) {
         case 'start':
             this.start();

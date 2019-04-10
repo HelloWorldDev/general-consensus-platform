@@ -6,7 +6,7 @@ module.exports = {
 	useExternalBA: false,
 	// ba specific param
 	lambda: 1,
-	BAType: 'vmware-ba/basic',
+	BAType: 'pbft',
 	configPath: '/Users/nicky/general-consensus-platform/tendermint/mytestnet/node',
 	// network env
 	networkType: 'tcp-json',
@@ -20,9 +20,9 @@ module.exports = {
 	// simulator
 	showDashboard: false,
 	// attacker
-	attacker: 'attacker',
+	attacker: 'partitioner',
 	// repeat
-	repeatTime: 100
+	repeatTime: 1
 };
 /* fast todo
 	2. cachin ba

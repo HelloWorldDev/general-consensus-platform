@@ -270,8 +270,9 @@ class VMwareNode extends Node {
 
     }
 
-    triggerMsgEvent(msg) {
-        this.logger.info(['recv', JSON.stringify(msg)]);
+    triggerMsgEvent(msgEvent) {
+        const msg = msgEvent.packet.content;
+        this.logger.info(['recv', msgEvent.triggeredTime, JSON.stringify(msg)]);
         if (this.isDecided) {
             return;
         }
@@ -346,10 +347,11 @@ class VMwareNode extends Node {
         });
     }
 
-    triggerTimeEvent(functionMeta) {
+    triggerTimeEvent(timeEvent) {
         if (this.isDecided) {
             return;
         }
+        const functionMeta = timeEvent.functionMeta;        
         switch (functionMeta.name) {
         case 'start':
             const initStatusMsg = {

@@ -14,7 +14,8 @@ class AdaptiveAttacker extends Attacker {
         return false;
     }
 
-    triggerTimeEvent(functionMeta) {
+    triggerTimeEvent(timeEvent) {
+        const functionMeta = timeEvent.functionMeta;        
         const msg = functionMeta.params.msg;
         if (functionMeta.params.dst === 'A') {
             this.groupA.forEach((dst) => {

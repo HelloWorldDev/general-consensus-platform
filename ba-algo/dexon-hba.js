@@ -208,8 +208,9 @@ class DEXONNode extends Node {
         }
     }
 
-    triggerMsgEvent(msg) {
-        this.logger.info(['recv', JSON.stringify(msg)]);
+    triggerMsgEvent(msgEvent) {
+        const msg = msgEvent.packet.content;        
+        this.logger.info(['recv', msgEvent.triggeredTime, JSON.stringify(msg)]);
         // for testing
         /*
         if (this.localClock > msg.sendTime + msg.delay) {
@@ -352,7 +353,8 @@ class DEXONNode extends Node {
         }
         this.reportToSystem();
     }
-    triggerTimeEvent(functionMeta) {
+    triggerTimeEvent(timeEvent) {
+        const functionMeta = timeEvent.functionMeta;        
         // prevent older events
         if (functionMeta.params.iter < this.iter) return;
         this.step = functionMeta.params.step;

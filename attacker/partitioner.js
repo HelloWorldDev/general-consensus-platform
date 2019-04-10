@@ -22,7 +22,7 @@ class Partitioner extends Attacker {
 	}
 
 	attack(packets) {
-		console.log(this.isPartitionResolved);
+		//console.log(this.isPartitionResolved);
 		if (this.isPartitionResolved) return packets;	
 		packets.forEach((packet) => {
 			if ((this.p1.includes(packet.src) &&
@@ -38,14 +38,14 @@ class Partitioner extends Attacker {
 		return packets;
 	}
 
-	triggerTimeEvent(functionMeta) {
+	triggerTimeEvent(timeEvent) {
 		this.info[0] = 'Partition resolved!';
 		this.isPrtitionResolved = true;
 	}
 
 	constructor(transfer, registerTimeEvent) {
 		super(transfer, registerTimeEvent);
-		this.partitionResolveTime = 60;
+		this.partitionResolveTime = 30;
 		this.partitionDelay = { mean: 4, std: 1 };
 		this.isPartitionResolved = false;
 
