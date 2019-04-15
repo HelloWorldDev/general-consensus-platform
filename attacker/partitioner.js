@@ -26,9 +26,11 @@ class Partitioner extends Attacker {
 	}
 
 	getPartition(nodeID) {
-		if (this.p1.has(nodeID)) return '1';
-		else if (this.p2.has(nodeID)) return '2';
-		else return '3';
+		for (let i = 0; i < this.partitions.length; i++) {
+			if (this.partitions[i].has(nodeID)) {
+				return i;
+			}
+		}
 	}
 
 	attack(packets) {
@@ -57,24 +59,23 @@ class Partitioner extends Attacker {
 		this.partitionDelay = { mean: 4, std: 1 };
 		this.isPartitionResolved = false;
 
+		const partitionNum = 2;
 		const correctNodeNum = config.nodeNum - config.byzantineNodeNum;
-		const boundary = Math.floor(correctNodeNum / 3);
-		const boundary2 = 2 * Math.floor(correctNodeNum / 3);
-		this.p1 = [];
-		this.p2 = [];
-		this.p3 = [];
+		const boundaries = [];
+		for (let i = 1; i < partitionNum; i++) {
+			boundaries.push(Math.floor(correctNodeNum / partitionNum) * i);
+		}
+		this.partitions = [[]];
+		let partitionIndex = 0;
 		for (let nodeID = 1; nodeID <= correctNodeNum; nodeID++) {
-			if (nodeID <= boundary) {
-				this.p1.push('' + nodeID);
-			}
-			else if (nodeID <= boundary2) {
-				this.p2.push('' + nodeID);
-			}
-			else {
-				this.p3.push('' + nodeID);
+			this.partitions[partitionIndex].push('' + nodeID);
+			if (nodeID === boundaries[partitionIndex]) {
+				partitionIndex++;
+				this.partitions.push([]);
 			}
 		}
-		this.info[0] = `Partitioning boundary ${boundary}` +
+		console.log(this.partitions);
+		this.info[0] = `Partitioning boundary ${boundaries}` +
 			` with delay ${this.partitionDelay}s`;
 		this.registerTimeEvent(
 			{ name: 'resolvePartition' }, 

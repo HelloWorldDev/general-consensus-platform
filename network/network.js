@@ -105,14 +105,6 @@ class Network {
             (sum, packet) => sum + this.getJSONSize(packet.content), 0);
         // send packets
         packets.forEach((packet) => {
-            /*
-            const waitTime = 
-                packet.delay * 1000 - (Date.now() - packet.content.sendTime);
-                
-            this.timers.push(setTimeout(() => {
-                //console.log(Date.now() - packet.content.sendTime);
-                this.sockets[packet.dst].sendMessage(packet.content);
-            }, waitTime));*/
             if (this.msgCount[packet.content.type] === undefined) {
                 this.msgCount[packet.content.type] = 1;
             }
