@@ -59,7 +59,7 @@ class Partitioner extends Attacker {
 		this.partitionDelay = { mean: 4, std: 1 };
 		this.isPartitionResolved = false;
 
-		const partitionNum = 2;
+		const partitionNum = 3;
 		const correctNodeNum = config.nodeNum - config.byzantineNodeNum;
 		const boundaries = [];
 		for (let i = 1; i < partitionNum; i++) {

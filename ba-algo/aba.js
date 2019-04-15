@@ -155,7 +155,8 @@ class ABANode extends Node {
         this.reportToSystem();
     }
     // receive from network
-    receive(msg) {
+    triggerMsgEvent(msgEvent) {
+        const msg = msgEvent.packet.content;
         this.logger.info(['recv', JSON.stringify(msg)]);
         /*
         if (this.isDecided) {
@@ -234,14 +235,18 @@ class ABANode extends Node {
             isDecided: { s: isDecidedS, w: 15 },
             decidedValue: { s: decidedValueS, w: 15 }
         };
-        this.network.send(this.nodeID, 'system', {
+        this.send(this.nodeID, 'system', {
             sender: this.nodeID,
             info: info
         });
     }
 
-    constructor(nodeID, nodeNum) {
-        super(nodeID, nodeNum);
+    triggerTimeEvent(timeEvent) {
+        this.broadcast2pc(this.initV);
+    }
+
+    constructor(nodeID, nodeNum, network, registerTimeEvent) {
+        super(nodeID, nodeNum, network, registerTimeEvent);
         this.f = (this.nodeNum % 3 === 0) ?
             this.nodeNum / 3 - 1 : Math.floor(this.nodeNum / 3);
         // 2 phase commit
@@ -257,18 +262,23 @@ class ABANode extends Node {
         // start BA process
         // propose init value
         this.initValue = '' + Math.round(Math.random());
-        const initV = {
+        this.initV = {
             k: 3 * this.phase + this.round,
             sender: this.nodeID,
             value: this.initValue,
             ID: uuid()
         };
+        this.registerTimeEvent({
+            name: 'broadcast2pc'
+        }, 0);
+        /*
         const targetStartTime = process.argv[4];
         //if (this.nodeID === '1') {
             setTimeout(() => {
                 this.broadcast2pc(initV);
             }, targetStartTime - Date.now());
-        //}
+        //}*/
     }
 }
-const n = new ABANode(process.argv[2], process.argv[3]);
+//const n = new ABANode(process.argv[2], process.argv[3]);
+module.exports = ABANode;

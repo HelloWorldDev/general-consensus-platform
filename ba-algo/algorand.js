@@ -114,7 +114,7 @@ class AlgorandNode extends Node {
             }
             else if (this.p >= 2 && conditions.isValue) {
                 // i proposes v, which he propagates together with his period p credential
-                propseMsg.v = conditions.value;
+                proposeMsg.v = conditions.value;
             }
             this.send(this.nodeID, 'broadcast', proposeMsg);
             this.extendVectors(this.proposes, this.p);            
