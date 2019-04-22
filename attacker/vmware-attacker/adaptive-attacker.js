@@ -13,8 +13,7 @@ class AdaptiveAttacker extends Attacker {
     attack(packets) {
         const msg = packets[0].content;
         if (this.mode === 'vrf' && 
-            msg.type === 'fl-propose' && 
-            packets.length === 1) {
+            msg.type === 'fl-propose') {
             this.propose.push(msg);
             if (this.propose.length == config.nodeNum) {
                 //console.log('find best vrf except byzantines');
@@ -56,7 +55,7 @@ class AdaptiveAttacker extends Attacker {
                 this.propose = [];
             }
         }
-        else if (this.mode === 'adaptive' && packets.length === 1) {
+        else if (this.mode === 'adaptive') {
             if (msg.type === 'fl-propose') {
                 this.flPropose.push(msg);
             }
