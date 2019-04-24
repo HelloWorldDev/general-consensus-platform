@@ -61,7 +61,8 @@ class PBFTNode extends Node {
         if (this.isInViewChange &&
             (msg.type !== 'checkpoint' &&
             msg.type !== 'view-change' &&
-            msg.type !== 'new-view')) {
+            msg.type !== 'new-view' &&
+            msg.type !== 'decide')) {
             return;
         }
         if (msg.type === 'pre-prepare') {
@@ -171,7 +172,16 @@ class PBFTNode extends Node {
                 this.lastDecidedRequest = msg.d;
                 this.logger.info(['decide', msg.d]);
                 this.isDecided = true;
+                //console.log(`${this.nodeID} decides`);
                 this.reportToSystem();
+                const decideMsg = {
+                    type: 'decide',
+                    n: msg.n,
+                    d: msg.d,
+                    i: this.nodeID,
+                    proof: this.commit[msg.v][msg.n].filter(comMsg => (comMsg.d === msg.d))
+                };
+                this.send(this.nodeID, 'broadcast', decideMsg);
                 if (msg.n % this.checkpointPeriod === 0) {
                     const checkpointMsg = {
                         type: 'checkpoint',
@@ -184,6 +194,33 @@ class PBFTNode extends Node {
                     this.send(this.nodeID, 'broadcast', checkpointMsg);
                 }
             }
+        }
+        else if (msg.type === 'decide') {
+            if (this.digest[msg.d] && this.digest[msg.d].isDecided) {
+                return;
+            }
+            if (this.digest[msg.d] === undefined) {
+                this.digest[msg.d] = {
+                    isReceived: true,
+                    isPrepared: true,
+                    isDecided: true,
+                };
+            }
+            this.digest[msg.d].isDecided = true;
+            this.lastDecidedSeq = msg.n;
+            this.lastDecidedRequest = msg.d;
+            this.logger.info(['decide', msg.d]);
+            this.isDecided = true;
+            //console.log(`${this.nodeID} decides`);
+            this.reportToSystem();            
+            const decideMsg = {
+                type: 'decide',
+                n: msg.n,
+                d: msg.d,
+                i: this.nodeID,
+                proof: msg.proof
+            };
+            this.send(this.nodeID, 'broadcast', decideMsg);
         }
         else if (msg.type === 'checkpoint') {
             this.extendVector(this.checkpoint, msg.n);
@@ -202,18 +239,16 @@ class PBFTNode extends Node {
         else if (msg.type === 'view-change') {
             // somehow verify this is a reasonable view change msg
             // checkpoint proof is provided
+            if (msg.v <= this.view) return;
             this.extendVector(this.viewChange, msg.v);
             this.viewChange[msg.v].push(msg);
-            if (this.isPrimary) {
-                return;
-            }
             if (this.viewChange[msg.v].length >= this.f + 1 &&
                 !this.isInViewChange && msg.v > this.view) {
                 this.startViewChange(msg.v);
             }
             if (this.viewChange[msg.v].length >= 2 * this.f + 1 &&
                 (msg.v % this.nodeNum) === (parseInt(this.nodeID) - 1) &&
-                !this.isPrimary && msg.v > this.view) {
+                !this.isPrimary) {
                 this.logger.info(['start as a primary']);
                 this.isPrimary = true;
                 this.isInViewChange = false;
@@ -292,6 +327,12 @@ class PBFTNode extends Node {
                 setTimeout(() => {
                     this.startPrimary();
                 }, 2 * 1000);*/
+            }
+            else if (this.viewChange[msg.v].length >= 2 * this.f + 1) {
+                this.registerTimeEvent(
+                    { name: 'skipToNextView', params: { oldView: this.oldView } }, 
+                    this.viewChangeTimeout * 1000
+                );
             }
         }
         else if (msg.type === 'new-view') {
@@ -413,7 +454,7 @@ class PBFTNode extends Node {
         case 'executeTimeout':
             if (!this.digest[functionMeta.params.d].isDecided && 
                 !this.isInViewChange && functionMeta.params.v === this.view) {
-                this.logger.info(['not executed in time', functionMeta.params.d]);
+                this.logger.info([timeEvent.triggeredTime, 'not executed in time', functionMeta.params.d]);
                 this.startViewChange(this.view + 1);
             }
             break;
@@ -423,7 +464,9 @@ class PBFTNode extends Node {
             );
             break;
         case 'skipToNextView':
-            this.skipToNextView();
+            if (functionMeta.params.oldView !== this.view) {
+                this.skipToNextView(functionMeta.params.oldView);
+            }
             break;
         default:
             console.log('undefined function name');
@@ -432,7 +475,7 @@ class PBFTNode extends Node {
     }
 
     // if the next primary is also dead
-    skipToNextView() {
+    skipToNextView(oldView) {
         if (this.view === this.oldView) {
             this.logger.info(['skip to next view']);
             const view = this.viewChangeMsg.v;
@@ -444,9 +487,10 @@ class PBFTNode extends Node {
             this.viewChangeTimeout *= 2;
             this.executeTimeout *= 2;
             this.receiveTimeout *= 2;
+            this.logger.info([`doubling timeout ${this.viewChangeTimeout} ${this.executeTimeout} ${this.receiveTimeout}`]);
 
             this.registerTimeEvent(
-                { name: 'skipToNextView' }, 
+                { name: 'skipToNextView', params: { oldView: oldView } }, 
                 this.viewChangeTimeout * 1000
             );
         }
@@ -507,10 +551,11 @@ class PBFTNode extends Node {
         setTimeout(() => {
             skipToNextView();
         }, 3000);*/
-        this.registerTimeEvent(
-            { name: 'skipToNextView' }, 
-            this.viewChangeTimeout * 1000
-        );        
+        
+        this.viewChangeTimeout *= 2;
+        this.executeTimeout *= 2;
+        this.receiveTimeout *= 2;
+        this.logger.info([`doubling timeout ${this.viewChangeTimeout} ${this.executeTimeout} ${this.receiveTimeout}`]);        
     }
 
     issueRequest() {
@@ -629,7 +674,7 @@ class PBFTNode extends Node {
         this.receiveTimeout = 3 * this.lambda;
         this.hasReceiveRequest = false;
         this.executeTimeout = 3 * this.lambda;
-        this.viewChangeTimeout = 3 * this.lambda;
+        this.viewChangeTimeout = 2 * this.lambda;
         // this makes nodes create checkpoint at n = 0
         this.lastStableCheckpoint = 0;
         // log
